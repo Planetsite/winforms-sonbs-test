@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>653897d6-68fc-4d2c-9a1f-9d97a08c6b99</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.1" />
+    <PackageReference Include="Planet.Garavot.HttpApiClient" Version="7.1.0" />
+    <PackageReference Include="Planet.IntegrationEvents.Domain" Version="7.6.4" />
+    <PackageReference Include="Planet.Sonbs.TcpClient" Version="7.1.1" />
+    <PackageReference Include="RabbitMQ.Client" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>
