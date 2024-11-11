@@ -23,9 +23,9 @@ public partial class FrmSonbsTest : Form
     {
         var rabbitmqConnectionFactory = new ConnectionFactory()
         {
-            HostName = _config["RabbitMQ:Host"],
-            UserName = _config["RabbitMQ:User"],
-            Password = _config["RabbitMQ:Pass"],
+            HostName = RabbitMqHost,
+            UserName = RabbitMqUser,
+            Password = RabbitMqPass,
         };
 
         // TODO rabbitmqConnection e _eventChannel sono ovviamente log-lived e da fare dispose
@@ -38,12 +38,12 @@ public partial class FrmSonbsTest : Form
         consumer.ReceivedAsync += RabbitEventReceivedAsync;
         await _eventChannel.BasicConsumeAsync(queue: "task_queue", autoAck: true, consumer);
 
-        _contentsApi = GaravotHttpApiClientFactory.CreateContentsApi(new Uri(_config["Garavot:ApiUri"]));
+        _contentsApi = GaravotHttpApiClientFactory.CreateContentsApi(new Uri(GaravotApiUri));
     }
 
     private async Task ConnectSonbsAsync()
     {
-        _sc6200mhTcpClient = new Sc6200mhTcpClient(null, new Sc6200mhTcpClientSettings(_config["Sonbs:Host"]));
+        _sc6200mhTcpClient = new Sc6200mhTcpClient(null, new Sc6200mhTcpClientSettings(SonbsHost));
         await _sc6200mhTcpClient.StartAsync();
     }
 
