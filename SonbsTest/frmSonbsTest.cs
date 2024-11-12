@@ -1,3 +1,4 @@
+using IdentityModel.Client;
 using Microsoft.Extensions.Configuration;
 using Planet.Garavot.HttpApiClient;
 using RabbitMQ.Client;
@@ -21,6 +22,45 @@ public partial class FrmSonbsTest : Form
 
     private async Task ConnectGaravotAsync()
     {
+        string accessToken;
+        {
+            using var hc = new HttpClient();
+            var test = await hc.RequestTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = GaravotOpenIdUrl,
+                GrantType = "client_credentials",
+                ClientId = GaravotClientId,
+                ClientSecret = GaravotClientSecret,
+                Scope = "email profile roles",
+            });
+            accessToken = test.AccessToken;
+        }
+
+        try
+        {
+            using var ghc = new HttpClient();
+            ghc.BaseAddress = new(GaravotApiUri);
+            ghc.SetBearerToken(accessToken);
+
+            _contentsApi = GaravotHttpApiClientFactory.CreateContentsApi(ghc);
+            var bla = await _contentsApi.SearchFrontendAsync(new Planet.Garavot.Contents.ContentSearchRequest
+            {
+                Page = 1,
+                PageSize = 1,
+                SortBy = [
+                    new Planet.Garavot.Contents.ContentSortCriteria
+                    {
+                        Direction = Planet.Core.Shared.Request.SortDirection.Ascending,
+                        SortField = Planet.Garavot.Contents.ContentSortField.Title
+                    }
+                ]
+            });
+        }
+        catch (Exception sureErr)
+        {
+            ;
+        }
+
         var rabbitmqConnectionFactory = new ConnectionFactory()
         {
             HostName = RabbitMqHost,
@@ -37,8 +77,6 @@ public partial class FrmSonbsTest : Form
         var consumer = new AsyncEventingBasicConsumer(_eventChannel);
         consumer.ReceivedAsync += RabbitEventReceivedAsync;
         await _eventChannel.BasicConsumeAsync(queue: "task_queue", autoAck: true, consumer);
-
-        _contentsApi = GaravotHttpApiClientFactory.CreateContentsApi(new Uri(GaravotApiUri));
     }
 
     private async Task ConnectSonbsAsync()
@@ -54,5 +92,10 @@ public partial class FrmSonbsTest : Form
     private async void cmdConnectSonbs_Click(object sender, EventArgs e)
     {
         await _sc6200mhTcpClient.ScanDevicesAsync(default);
+    }
+
+    private async void btnConnectGaravot_Click(object sender, EventArgs e)
+    {
+        await ConnectGaravotAsync();
     }
 }

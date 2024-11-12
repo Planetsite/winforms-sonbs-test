@@ -246,8 +246,9 @@
             btnConnectGaravot.TabIndex = 9;
             btnConnectGaravot.Text = "Auth Garavot";
             btnConnectGaravot.UseVisualStyleBackColor = true;
+            btnConnectGaravot.Click += btnConnectGaravot_Click;
             // 
-            // frmSonbsTest
+            // FrmSonbsTest
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -263,7 +264,7 @@
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "frmSonbsTest";
+            Name = "FrmSonbsTest";
             Text = "Test Seduta Sonbs";
             groupSignIn.ResumeLayout(false);
             groupVotazione.ResumeLayout(false);
