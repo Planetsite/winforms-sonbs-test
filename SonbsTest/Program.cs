@@ -1,11 +1,3 @@
-namespace SonbsTest;
-
-internal static class Program
-{
-    [STAThread]
-    static void Main()
-    {
-        ApplicationConfiguration.Initialize();
-        Application.Run(new FrmSonbsTest());
-    }
-}
+// [STAThread]
+ApplicationConfiguration.Initialize();
+Application.Run(new SonbsTest.FrmSonbsTest());

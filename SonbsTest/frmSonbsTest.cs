@@ -1,5 +1,6 @@
 using IdentityModel.Client;
 using Microsoft.Extensions.Configuration;
+using Planet.Core.Shared.Request;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Sonbs.Sc6200mh.TcpClient;
@@ -9,8 +10,8 @@ namespace SonbsTest;
 public partial class FrmSonbsTest : Form
 {
     private readonly IConfigurationRoot _config;
-    private IGaravotApi? _garavotApi;
     private IChannel? _eventChannel;
+    private IGaravotApi? _garavotApi;
     private ISc6200mhTcpClient? _sc6200mhTcpClient;
 
     public FrmSonbsTest()
@@ -37,7 +38,7 @@ public partial class FrmSonbsTest : Form
             // TODO rabbitmqConnection e _eventChannel sono ovviamente log-lived e da fare dispose
             var rabbitmqConnection = await rabbitmqConnectionFactory.CreateConnectionAsync();
             _eventChannel = await rabbitmqConnection.CreateChannelAsync();
-            await _eventChannel.QueueBindAsync("queue", "exchange", "routing");
+            /// NO QUEUE await _eventChannel.QueueBindAsync("queue", "exchange", "routing");
             await _eventChannel.BasicPublishAsync("exchange", "routing", true, body: null);
 
             var consumer = new AsyncEventingBasicConsumer(_eventChannel);
@@ -70,13 +71,17 @@ public partial class FrmSonbsTest : Form
                 _garavotApi = GaravotApiFactory.Create(ghc);
                 var delegateResponse = await _garavotApi.GetDelegatesAsync();
                 var delegateGroupsResponse = await _garavotApi.GetDelegateGroupsAsync();
-                var delegateGroupDelegatesResponse = await _garavotApi.GetDelegateGroupDelegatesAsync(new DelegateGroupDelegateSearchRequest
+                var delegateGroupDelegatesResponseTask = _garavotApi.GetDelegateGroupDelegatesAsync(new DelegateGroupDelegateSearchRequest
                 {
                     Page = 1,
-                    PageSize = short.MaxValue
+                    PageSize = short.MaxValue,
+                    SortBy = [new SortCriteria<DelegateGroupDelegateSortField> {
+                        Direction = SortDirection.Ascending,
+                        SortField = DelegateGroupDelegateSortField.Start }]
                 });
+                var delegateGroupDelegatesResponse = await delegateGroupDelegatesResponseTask;
             }
-            catch (Exception delegateErr)
+            catch (Exception garavotErr)
             {
                 ;
             }

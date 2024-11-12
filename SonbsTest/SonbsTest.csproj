@@ -7,6 +7,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>653897d6-68fc-4d2c-9a1f-9d97a08c6b99</UserSecretsId>
+    <Version>0.1.0</Version>
+    <Authors>planet</Authors>
+    <Company>planet</Company>
   </PropertyGroup>
 
   <ItemGroup>

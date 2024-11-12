@@ -1,7 +1,6 @@
 ﻿using Refit;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using Tamir.SharpSsh.jsch;
 using Planet.Core.Shared.Response;
 using Planet.Core.Shared.Request;
 
@@ -18,7 +17,7 @@ public interface IGaravotApi
     Task<ApiResponse<SearchResponse<DelegateGroupFeDto>>> GetDelegateGroupsAsync(CancellationToken cancellation = default);
 
     // auth
-    [Get("/api/v1/delegategroupdelegates/search")]
+    [Post("/api/v1/delegategroupdelegates/search")]
     Task<ApiResponse<SearchResponse<GovernmentBodyDelegateDto>>> GetDelegateGroupDelegatesAsync(DelegateGroupDelegateSearchRequest request, CancellationToken cancellation = default);
 }
 
@@ -231,4 +230,12 @@ public enum DelegateGroupDelegateSortField : short
     DelegateGroupName,
     DelegateLastName,
     Start,
+}
+public class UserInfo
+{
+    public Guid Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Email { get; set; }
+    public string Username { get; set; }
 }
