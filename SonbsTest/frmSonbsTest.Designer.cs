@@ -45,12 +45,17 @@
             colheadSurname = new ColumnHeader();
             colheadGruppo = new ColumnHeader();
             colheadSeat = new ColumnHeader();
+            colheadTalk = new ColumnHeader();
             viewOrdini = new ListView();
             colheadDescrizione = new ColumnHeader();
             cmdSittingStart = new Button();
             cmdSittingStop = new Button();
             cmdConnectSonbs = new Button();
             btnConnectGaravot = new Button();
+            cmdSendTopic = new Button();
+            cmdSendTalkOn = new Button();
+            cmdSendTalkOff = new Button();
+            cmdCloseAllMics = new Button();
             groupSignIn.SuspendLayout();
             groupVotazione.SuspendLayout();
             SuspendLayout();
@@ -94,7 +99,7 @@
             groupVotazione.Controls.Add(cmdVotazioneTipi);
             groupVotazione.Location = new Point(12, 75);
             groupVotazione.Name = "groupVotazione";
-            groupVotazione.Size = new Size(200, 330);
+            groupVotazione.Size = new Size(200, 352);
             groupVotazione.TabIndex = 3;
             groupVotazione.TabStop = false;
             groupVotazione.Text = "Votazione";
@@ -106,7 +111,7 @@
             viewVoteResult.Location = new Point(6, 104);
             viewVoteResult.Name = "viewVoteResult";
             viewVoteResult.Scrollable = false;
-            viewVoteResult.Size = new Size(188, 220);
+            viewVoteResult.Size = new Size(188, 242);
             viewVoteResult.TabIndex = 6;
             viewVoteResult.UseCompatibleStateImageBehavior = false;
             viewVoteResult.View = View.Details;
@@ -167,7 +172,7 @@
             // 
             // viewDelegates
             // 
-            viewDelegates.Columns.AddRange(new ColumnHeader[] { colheadName, colheadSurname, colheadGruppo, colheadSeat });
+            viewDelegates.Columns.AddRange(new ColumnHeader[] { colheadName, colheadSurname, colheadGruppo, colheadSeat, colheadTalk });
             viewDelegates.Location = new Point(218, 12);
             viewDelegates.Name = "viewDelegates";
             viewDelegates.Size = new Size(477, 204);
@@ -195,10 +200,15 @@
             colheadSeat.Text = "Mic#";
             colheadSeat.Width = 40;
             // 
+            // colheadTalk
+            // 
+            colheadTalk.Text = "🔊";
+            colheadTalk.Width = 30;
+            // 
             // viewOrdini
             // 
             viewOrdini.Columns.AddRange(new ColumnHeader[] { colheadDescrizione });
-            viewOrdini.Location = new Point(218, 222);
+            viewOrdini.Location = new Point(218, 255);
             viewOrdini.Name = "viewOrdini";
             viewOrdini.Size = new Size(477, 183);
             viewOrdini.TabIndex = 5;
@@ -212,7 +222,7 @@
             // 
             // cmdSittingStart
             // 
-            cmdSittingStart.Location = new Point(12, 411);
+            cmdSittingStart.Location = new Point(18, 444);
             cmdSittingStart.Name = "cmdSittingStart";
             cmdSittingStart.Size = new Size(92, 23);
             cmdSittingStart.TabIndex = 6;
@@ -221,7 +231,7 @@
             // 
             // cmdSittingStop
             // 
-            cmdSittingStop.Location = new Point(110, 411);
+            cmdSittingStop.Location = new Point(116, 444);
             cmdSittingStop.Name = "cmdSittingStop";
             cmdSittingStop.Size = new Size(102, 23);
             cmdSittingStop.TabIndex = 7;
@@ -230,7 +240,7 @@
             // 
             // cmdConnectSonbs
             // 
-            cmdConnectSonbs.Location = new Point(218, 411);
+            cmdConnectSonbs.Location = new Point(224, 444);
             cmdConnectSonbs.Name = "cmdConnectSonbs";
             cmdConnectSonbs.Size = new Size(127, 23);
             cmdConnectSonbs.TabIndex = 8;
@@ -240,7 +250,7 @@
             // 
             // btnConnectGaravot
             // 
-            btnConnectGaravot.Location = new Point(351, 411);
+            btnConnectGaravot.Location = new Point(357, 444);
             btnConnectGaravot.Name = "btnConnectGaravot";
             btnConnectGaravot.Size = new Size(127, 23);
             btnConnectGaravot.TabIndex = 9;
@@ -248,11 +258,51 @@
             btnConnectGaravot.UseVisualStyleBackColor = true;
             btnConnectGaravot.Click += btnConnectGaravot_Click;
             // 
+            // cmdSendTopic
+            // 
+            cmdSendTopic.Location = new Point(592, 444);
+            cmdSendTopic.Name = "cmdSendTopic";
+            cmdSendTopic.Size = new Size(103, 23);
+            cmdSendTopic.TabIndex = 10;
+            cmdSendTopic.Text = "Invia ODG";
+            cmdSendTopic.UseVisualStyleBackColor = true;
+            // 
+            // cmdSendTalkOn
+            // 
+            cmdSendTalkOn.Location = new Point(218, 226);
+            cmdSendTalkOn.Name = "cmdSendTalkOn";
+            cmdSendTalkOn.Size = new Size(127, 23);
+            cmdSendTalkOn.TabIndex = 11;
+            cmdSendTalkOn.Text = "Apri parola";
+            cmdSendTalkOn.UseVisualStyleBackColor = true;
+            // 
+            // cmdSendTalkOff
+            // 
+            cmdSendTalkOff.Location = new Point(351, 226);
+            cmdSendTalkOff.Name = "cmdSendTalkOff";
+            cmdSendTalkOff.Size = new Size(127, 23);
+            cmdSendTalkOff.TabIndex = 12;
+            cmdSendTalkOff.Text = "Chiudi parola";
+            cmdSendTalkOff.UseVisualStyleBackColor = true;
+            // 
+            // cmdCloseAllMics
+            // 
+            cmdCloseAllMics.Location = new Point(484, 226);
+            cmdCloseAllMics.Name = "cmdCloseAllMics";
+            cmdCloseAllMics.Size = new Size(127, 23);
+            cmdCloseAllMics.TabIndex = 13;
+            cmdCloseAllMics.Text = "Chiudi microfoni";
+            cmdCloseAllMics.UseVisualStyleBackColor = true;
+            // 
             // FrmSonbsTest
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(700, 440);
+            ClientSize = new Size(700, 468);
+            Controls.Add(cmdCloseAllMics);
+            Controls.Add(cmdSendTalkOff);
+            Controls.Add(cmdSendTalkOn);
+            Controls.Add(cmdSendTopic);
             Controls.Add(btnConnectGaravot);
             Controls.Add(cmdConnectSonbs);
             Controls.Add(cmdSittingStop);
@@ -297,5 +347,10 @@
         private Button cmdConnectSonbs;
         private ColumnHeader colheadSeat;
         private Button btnConnectGaravot;
+        private Button cmdSendTopic;
+        private Button cmdSendTalkOn;
+        private ColumnHeader colheadTalk;
+        private Button cmdSendTalkOff;
+        private Button cmdCloseAllMics;
     }
 }
