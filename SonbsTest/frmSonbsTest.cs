@@ -9,7 +9,7 @@ namespace SonbsTest;
 public partial class FrmSonbsTest : Form
 {
     private readonly IConfigurationRoot _config;
-    private IGaravotApi? _contentsApi;
+    private IGaravotApi? _garavotApi;
     private IChannel? _eventChannel;
     private ISc6200mhTcpClient? _sc6200mhTcpClient;
 
@@ -67,8 +67,14 @@ public partial class FrmSonbsTest : Form
                 ghc.BaseAddress = new(GaravotApiUri);
                 ghc.SetBearerToken(accessToken);
 
-                _contentsApi = GaravotApiFactory.Create(ghc);
-                var delegateResponse = await _contentsApi.GetDelegatesAsync();
+                _garavotApi = GaravotApiFactory.Create(ghc);
+                var delegateResponse = await _garavotApi.GetDelegatesAsync();
+                var delegateGroupsResponse = await _garavotApi.GetDelegateGroupsAsync();
+                var delegateGroupDelegatesResponse = await _garavotApi.GetDelegateGroupDelegatesAsync(new DelegateGroupDelegateSearchRequest
+                {
+                    Page = 1,
+                    PageSize = short.MaxValue
+                });
             }
             catch (Exception delegateErr)
             {

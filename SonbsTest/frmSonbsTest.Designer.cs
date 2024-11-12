@@ -99,7 +99,7 @@
             groupVotazione.Controls.Add(cmdVotazioneTipi);
             groupVotazione.Location = new Point(12, 75);
             groupVotazione.Name = "groupVotazione";
-            groupVotazione.Size = new Size(200, 352);
+            groupVotazione.Size = new Size(200, 363);
             groupVotazione.TabIndex = 3;
             groupVotazione.TabStop = false;
             groupVotazione.Text = "Votazione";
@@ -111,7 +111,7 @@
             viewVoteResult.Location = new Point(6, 104);
             viewVoteResult.Name = "viewVoteResult";
             viewVoteResult.Scrollable = false;
-            viewVoteResult.Size = new Size(188, 242);
+            viewVoteResult.Size = new Size(188, 253);
             viewVoteResult.TabIndex = 6;
             viewVoteResult.UseCompatibleStateImageBehavior = false;
             viewVoteResult.View = View.Details;
@@ -260,6 +260,7 @@
             // 
             // cmdSendTopic
             // 
+            cmdSendTopic.Enabled = false;
             cmdSendTopic.Location = new Point(592, 444);
             cmdSendTopic.Name = "cmdSendTopic";
             cmdSendTopic.Size = new Size(103, 23);
@@ -269,6 +270,7 @@
             // 
             // cmdSendTalkOn
             // 
+            cmdSendTalkOn.Enabled = false;
             cmdSendTalkOn.Location = new Point(218, 226);
             cmdSendTalkOn.Name = "cmdSendTalkOn";
             cmdSendTalkOn.Size = new Size(127, 23);
@@ -278,6 +280,7 @@
             // 
             // cmdSendTalkOff
             // 
+            cmdSendTalkOff.Enabled = false;
             cmdSendTalkOff.Location = new Point(351, 226);
             cmdSendTalkOff.Name = "cmdSendTalkOff";
             cmdSendTalkOff.Size = new Size(127, 23);
