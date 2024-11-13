@@ -41,9 +41,9 @@ public partial class FrmSonbsTest : Form
             /// NO QUEUE await _eventChannel.QueueBindAsync("queue", "exchange", "routing");
             await _eventChannel.BasicPublishAsync("exchange", "routing", true, body: null);
 
-            var consumer = new AsyncEventingBasicConsumer(_eventChannel);
-            consumer.ReceivedAsync += RabbitEventReceivedAsync;
-            await _eventChannel.BasicConsumeAsync(queue: "task_queue", autoAck: true, consumer);
+            //var consumer = new AsyncEventingBasicConsumer(_eventChannel);
+            //consumer.ReceivedAsync += RabbitEventReceivedAsync;
+            //await _eventChannel.BasicConsumeAsync(queue: "task_queue", autoAck: true, consumer);
         }
 
         async Task ConnectGaravot()
@@ -83,7 +83,7 @@ public partial class FrmSonbsTest : Form
             }
             catch (Exception garavotErr)
             {
-                ;
+                MessageBox.Show(garavotErr.Message, "Garavot connection failed");
             }
         }
     }
@@ -94,12 +94,11 @@ public partial class FrmSonbsTest : Form
         await _sc6200mhTcpClient.StartAsync();
     }
 
-    private async Task RabbitEventReceivedAsync(object sender, BasicDeliverEventArgs @event)
-    {
-    }
+    //private async Task RabbitEventReceivedAsync(object sender, BasicDeliverEventArgs @event){}
 
     private async void cmdConnectSonbs_Click(object sender, EventArgs e)
     {
+        await ConnectSonbsAsync();
         await _sc6200mhTcpClient.ScanDevicesAsync(default);
     }
 
