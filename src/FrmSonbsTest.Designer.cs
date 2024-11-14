@@ -39,7 +39,7 @@
             btnVotazioneEnd = new Button();
             btnVotazioneStart = new Button();
             label1 = new Label();
-            cmdVotazioneTipi = new ComboBox();
+            cmbVotazioneTipi = new ComboBox();
             viewDelegates = new ListView();
             colheadName = new ColumnHeader();
             colheadSurname = new ColumnHeader();
@@ -66,11 +66,14 @@
             tabGaravot = new TabPage();
             btnConfirmTalkRequest = new Button();
             btnRefuteTalkRequest = new Button();
+            ssLog = new StatusStrip();
+            tslLog = new ToolStripStatusLabel();
             groupSignIn.SuspendLayout();
             groupVotazione.SuspendLayout();
             tcXXX.SuspendLayout();
             tabSonbs.SuspendLayout();
             tabGaravot.SuspendLayout();
+            ssLog.SuspendLayout();
             SuspendLayout();
             // 
             // btnSignInStart
@@ -109,7 +112,7 @@
             groupVotazione.Controls.Add(btnVotazioneEnd);
             groupVotazione.Controls.Add(btnVotazioneStart);
             groupVotazione.Controls.Add(label1);
-            groupVotazione.Controls.Add(cmdVotazioneTipi);
+            groupVotazione.Controls.Add(cmbVotazioneTipi);
             groupVotazione.Location = new Point(12, 75);
             groupVotazione.Name = "groupVotazione";
             groupVotazione.Size = new Size(200, 363);
@@ -165,6 +168,7 @@
             btnVotazioneStart.TabIndex = 2;
             btnVotazioneStart.Text = "AVVIA";
             btnVotazioneStart.UseVisualStyleBackColor = true;
+            btnVotazioneStart.Click += btnVotazioneStart_Click;
             // 
             // label1
             // 
@@ -175,13 +179,14 @@
             label1.TabIndex = 1;
             label1.Text = "Tipo";
             // 
-            // cmdVotazioneTipi
+            // cmbVotazioneTipi
             // 
-            cmdVotazioneTipi.FormattingEnabled = true;
-            cmdVotazioneTipi.Location = new Point(42, 22);
-            cmdVotazioneTipi.Name = "cmdVotazioneTipi";
-            cmdVotazioneTipi.Size = new Size(152, 23);
-            cmdVotazioneTipi.TabIndex = 0;
+            cmbVotazioneTipi.FormattingEnabled = true;
+            cmbVotazioneTipi.Items.AddRange(new object[] { "LastValidDirectVoting", "LastValidVotingAfterSigningIn", "FirstValidDirectVoting", "FirstValidVotingAfterSigningIn", "LastValidDirectElection", "LastValidElectionAfterSigningIn", "FirstValidDirectElection", "FirstValidElectionAfterSigningIn", "FirstValidDirectRating", "FirstValidRatingAfterSigningIn", "LastValidDirectRating", "LastValidRatingAfterSigningIn", "FirstValidDirectTwoItems", "FirstValidTwoItemsAfterSigningIn", "LastValidThreeItemsAfterSigningIn", "LastValidThreeItemsAfterSigningIn_2", "LastValidThreeItemsAfterSigningIn_3", "LastValidThreeItemsAfterSigningIn_4", "LastValidDirectThreeItems", "FirstValidDirectThreeItems", "FirstValidThreeItemsAfterSigningIn", "LastValidThreeItemsAfterSigningIn_5", "LastValidDirectFourItems", "FirstValidDirectFourItems", "FirstValidFourItemsAfterSigningIn", "LastValidFourItemsAfterSigningIn", "LastValidDirectFourItems_2", "FirstValidDirectFourItems_2", "Unknown1", "Unknown2", "Unknown3", "Unknown4" });
+            cmbVotazioneTipi.Location = new Point(42, 22);
+            cmbVotazioneTipi.Name = "cmbVotazioneTipi";
+            cmbVotazioneTipi.Size = new Size(152, 23);
+            cmbVotazioneTipi.TabIndex = 0;
             // 
             // viewDelegates
             // 
@@ -394,11 +399,26 @@
             btnRefuteTalkRequest.Text = "Rifiuta";
             btnRefuteTalkRequest.UseVisualStyleBackColor = true;
             // 
+            // ssLog
+            // 
+            ssLog.Items.AddRange(new ToolStripItem[] { tslLog });
+            ssLog.Location = new Point(0, 471);
+            ssLog.Name = "ssLog";
+            ssLog.Size = new Size(700, 22);
+            ssLog.SizingGrip = false;
+            ssLog.TabIndex = 17;
+            // 
+            // tslLog
+            // 
+            tslLog.Name = "tslLog";
+            tslLog.Size = new Size(0, 17);
+            // 
             // FrmSonbsTest
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(700, 471);
+            ClientSize = new Size(700, 493);
+            Controls.Add(ssLog);
             Controls.Add(btnRefuteTalkRequest);
             Controls.Add(btnConfirmTalkRequest);
             Controls.Add(tcXXX);
@@ -424,7 +444,10 @@
             tcXXX.ResumeLayout(false);
             tabSonbs.ResumeLayout(false);
             tabGaravot.ResumeLayout(false);
+            ssLog.ResumeLayout(false);
+            ssLog.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -437,7 +460,7 @@
         private Button btnVotazioneEnd;
         private Button btnVotazioneStart;
         private Label label1;
-        private ComboBox cmdVotazioneTipi;
+        private ComboBox cmbVotazioneTipi;
         private ListView viewVoteResult;
         private ColumnHeader colheadVoteName;
         private ColumnHeader colheadVoteResult;
@@ -467,5 +490,7 @@
         private ColumnHeader colheadAltro;
         private Button btnConfirmTalkRequest;
         private Button btnRefuteTalkRequest;
+        private StatusStrip ssLog;
+        private ToolStripStatusLabel tslLog;
     }
 }

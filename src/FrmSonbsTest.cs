@@ -2,8 +2,8 @@ using IdentityModel.Client;
 using Microsoft.Extensions.Configuration;
 using Planet.Core.Shared.Request;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using Sonbs.Sc6200mh.TcpClient;
+using Sonbs.Sc6200mh.TcpClient.Models;
 
 namespace SonbsTest;
 
@@ -12,12 +12,39 @@ public partial class FrmSonbsTest : Form
     private readonly IConfigurationRoot _config;
     private IChannel? _eventChannel;
     private IGaravotApi? _garavotApi;
-    private ISc6200mhTcpClient? _sc6200mhTcpClient;
+    private Sc6200mhTcpClient? _sonbsClient;
+    private readonly StatusStripLogger _logger;
 
     public FrmSonbsTest()
     {
         _config = new ConfigurationBuilder().AddUserSecrets<FrmSonbsTest>().Build();
         InitializeComponent();
+        _logger = new StatusStripLogger(tslLog);
+        tslLog.Text = "Ready";
+    }
+
+    private async void btnConnectGaravot_Click(object __, EventArgs _)
+    {
+        await ConnectGaravotAsync();
+    }
+
+    private async void btnVotazioneStart_Click(object __, EventArgs _)
+    {
+        if (cmbVotazioneTipi.SelectedValue == null) { tslLog.Text = "nessuna votazione selezionata"; return; }
+        if (_sonbsClient == null) { tslLog.Text = "sonbs non inizializzato"; return; }
+        var mode = Enum.Parse<VotingMode>((string)cmbVotazioneTipi.SelectedValue);
+        await _sonbsClient.StartVoting2Async(mode, default);
+        tslLog.Text = $"votazione {mode} avviata";
+    }
+
+    private async void cmdConnectSonbs_Click(object __, EventArgs _)
+    {
+        await ConnectSonbsAsync();
+
+        var devs = await _sonbsClient.ScanDevicesAsync(default);
+        viewSonbs.Clear();
+        foreach (var dev in devs.T31)
+            viewSonbs.Items.Add(new ListViewItem([dev.Id.ToString(), dev.IsChairman.ToString(), dev.MicState.ToString(), string.Empty]));
     }
 
     private async Task ConnectGaravotAsync()
@@ -106,23 +133,11 @@ public partial class FrmSonbsTest : Form
 
     private async Task ConnectSonbsAsync()
     {
-        _sc6200mhTcpClient = new Sc6200mhTcpClient(null, new Sc6200mhTcpClientSettings(SonbsHost));
-        await _sc6200mhTcpClient.StartAsync();
+        tslLog.Text = "provo a connettere sonbs";
+        _sonbsClient = new Sc6200mhTcpClient(new StatusStripLogger2<Sc6200mhTcpClient>(_logger), new Sc6200mhTcpClientSettings(SonbsHost));
+        await _sonbsClient.StartAsync();
+        tslLog.Text = "sonbs connesso";
     }
 
     //private async Task RabbitEventReceivedAsync(object sender, BasicDeliverEventArgs @event){}
-
-    private async void cmdConnectSonbs_Click(object sender, EventArgs e)
-    {
-        await ConnectSonbsAsync();
-        var devs = await _sc6200mhTcpClient.ScanDevicesAsync(default);
-        viewSonbs.Clear();
-        foreach (var dev in devs.T31)
-            viewSonbs.Items.Add(new ListViewItem([dev.Id.ToString(), dev.IsChairman.ToString(), dev.MicState.ToString(), string.Empty]));
-    }
-
-    private async void btnConnectGaravot_Click(object sender, EventArgs e)
-    {
-        await ConnectGaravotAsync();
-    }
 }
