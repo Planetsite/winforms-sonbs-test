@@ -58,12 +58,12 @@
             cmdCloseAllMics = new Button();
             tcDelegates = new TabControl();
             tabSonbs = new TabPage();
+            tabGaravot = new TabPage();
             viewSonbs = new ListView();
             colheadMicId = new ColumnHeader();
             colheadWired = new ColumnHeader();
             colheadChairman = new ColumnHeader();
             colheadAltro = new ColumnHeader();
-            tabGaravot = new TabPage();
             btnConfirmTalkRequest = new Button();
             btnRefuteTalkRequest = new Button();
             ssLog = new StatusStrip();
@@ -127,6 +127,7 @@
             viewVoteResult.Columns.AddRange(new ColumnHeader[] { colheadVoteName, colheadVoteResult });
             viewVoteResult.GridLines = true;
             viewVoteResult.Location = new Point(6, 104);
+            viewVoteResult.MultiSelect = false;
             viewVoteResult.Name = "viewVoteResult";
             viewVoteResult.Scrollable = false;
             viewVoteResult.Size = new Size(188, 253);
@@ -195,7 +196,9 @@
             // 
             viewDelegates.Columns.AddRange(new ColumnHeader[] { colheadName, colheadSurname, colheadGruppo, colheadSeat, colheadTalk });
             viewDelegates.Dock = DockStyle.Fill;
+            viewDelegates.FullRowSelect = true;
             viewDelegates.Location = new Point(3, 3);
+            viewDelegates.MultiSelect = false;
             viewDelegates.Name = "viewDelegates";
             viewDelegates.Size = new Size(421, 194);
             viewDelegates.TabIndex = 4;
@@ -231,6 +234,7 @@
             // 
             viewOrdini.Columns.AddRange(new ColumnHeader[] { colheadDescrizione });
             viewOrdini.FullRowSelect = true;
+            viewOrdini.GridLines = true;
             viewOrdini.Location = new Point(218, 255);
             viewOrdini.MultiSelect = false;
             viewOrdini.Name = "viewOrdini";
@@ -352,11 +356,24 @@
             tabSonbs.Text = "Sonbs";
             tabSonbs.UseVisualStyleBackColor = true;
             // 
+            // tabGaravot
+            // 
+            tabGaravot.Controls.Add(viewDelegates);
+            tabGaravot.Location = new Point(52, 4);
+            tabGaravot.Name = "tabGaravot";
+            tabGaravot.Padding = new Padding(3);
+            tabGaravot.Size = new Size(427, 200);
+            tabGaravot.TabIndex = 1;
+            tabGaravot.Text = "Garavot";
+            tabGaravot.UseVisualStyleBackColor = true;
+            // 
             // viewSonbs
             // 
             viewSonbs.Columns.AddRange(new ColumnHeader[] { colheadMicId, colheadWired, colheadChairman, colheadAltro });
             viewSonbs.Dock = DockStyle.Fill;
+            viewSonbs.FullRowSelect = true;
             viewSonbs.Location = new Point(3, 3);
+            viewSonbs.MultiSelect = false;
             viewSonbs.Name = "viewSonbs";
             viewSonbs.Size = new Size(421, 194);
             viewSonbs.TabIndex = 5;
@@ -379,19 +396,8 @@
             // 
             // colheadAltro
             // 
-            colheadAltro.Text = "Altro";
+            colheadAltro.Text = "Stato";
             colheadAltro.Width = 90;
-            // 
-            // tabGaravot
-            // 
-            tabGaravot.Controls.Add(viewDelegates);
-            tabGaravot.Location = new Point(52, 4);
-            tabGaravot.Name = "tabGaravot";
-            tabGaravot.Padding = new Padding(3);
-            tabGaravot.Size = new Size(427, 200);
-            tabGaravot.TabIndex = 1;
-            tabGaravot.Text = "Garavot";
-            tabGaravot.UseVisualStyleBackColor = true;
             // 
             // btnConfirmTalkRequest
             // 

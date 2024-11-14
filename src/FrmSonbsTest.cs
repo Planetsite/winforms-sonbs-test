@@ -53,7 +53,7 @@ public sealed partial class FrmSonbsTest : Form
         _sonbsDevs = await _sonbsClient!.ScanDevicesAsync(default);
         viewSonbs.Clear();
         foreach (var dev in _sonbsDevs.T31)
-            viewSonbs.Items.Add(new ListViewItem([dev.Id.ToString(), dev.IsChairman.ToString(), dev.MicState.ToString(), string.Empty]));
+            viewSonbs.Items.Add(new ListViewItem([dev.Id.Id.ToString(), dev.Id.Target.ToString(), dev.IsChairman.ToString(), dev.MicState.ToString()]));
     }
 
     async Task ConnectGaravotAsync()
