@@ -56,7 +56,7 @@
             cmdSendTalkOn = new Button();
             cmdSendTalkOff = new Button();
             cmdCloseAllMics = new Button();
-            tcXXX = new TabControl();
+            tcDelegates = new TabControl();
             tabSonbs = new TabPage();
             viewSonbs = new ListView();
             colheadMicId = new ColumnHeader();
@@ -70,7 +70,7 @@
             tslLog = new ToolStripStatusLabel();
             groupSignIn.SuspendLayout();
             groupVotazione.SuspendLayout();
-            tcXXX.SuspendLayout();
+            tcDelegates.SuspendLayout();
             tabSonbs.SuspendLayout();
             tabGaravot.SuspendLayout();
             ssLog.SuspendLayout();
@@ -84,6 +84,7 @@
             btnSignInStart.TabIndex = 0;
             btnSignInStart.Text = "AVVIA";
             btnSignInStart.UseVisualStyleBackColor = true;
+            btnSignInStart.Click += btnSignInStart_Click;
             // 
             // btnSignInEnd
             // 
@@ -93,6 +94,7 @@
             btnSignInEnd.TabIndex = 1;
             btnSignInEnd.Text = "FERMA";
             btnSignInEnd.UseVisualStyleBackColor = true;
+            btnSignInEnd.Click += btnSignInEnd_Click;
             // 
             // groupSignIn
             // 
@@ -159,6 +161,7 @@
             btnVotazioneEnd.TabIndex = 3;
             btnVotazioneEnd.Text = "CONCLUDI";
             btnVotazioneEnd.UseVisualStyleBackColor = true;
+            btnVotazioneEnd.Click += btnVotazioneEnd_Click;
             // 
             // btnVotazioneStart
             // 
@@ -194,7 +197,7 @@
             viewDelegates.Dock = DockStyle.Fill;
             viewDelegates.Location = new Point(3, 3);
             viewDelegates.Name = "viewDelegates";
-            viewDelegates.Size = new Size(457, 171);
+            viewDelegates.Size = new Size(421, 194);
             viewDelegates.TabIndex = 4;
             viewDelegates.UseCompatibleStateImageBehavior = false;
             viewDelegates.View = View.Details;
@@ -227,12 +230,15 @@
             // viewOrdini
             // 
             viewOrdini.Columns.AddRange(new ColumnHeader[] { colheadDescrizione });
+            viewOrdini.FullRowSelect = true;
             viewOrdini.Location = new Point(218, 255);
+            viewOrdini.MultiSelect = false;
             viewOrdini.Name = "viewOrdini";
             viewOrdini.Size = new Size(477, 183);
             viewOrdini.TabIndex = 5;
             viewOrdini.UseCompatibleStateImageBehavior = false;
             viewOrdini.View = View.Details;
+            viewOrdini.SelectedIndexChanged += viewOrdini_SelectedIndexChanged;
             // 
             // colheadDescrizione
             // 
@@ -247,6 +253,7 @@
             cmdSittingStart.TabIndex = 6;
             cmdSittingStart.Text = "Apri Seduta";
             cmdSittingStart.UseVisualStyleBackColor = true;
+            cmdSittingStart.Click += cmdSittingStart_Click;
             // 
             // cmdSittingStop
             // 
@@ -256,6 +263,7 @@
             cmdSittingStop.TabIndex = 7;
             cmdSittingStop.Text = "Chiudi Seduta";
             cmdSittingStop.UseVisualStyleBackColor = true;
+            cmdSittingStop.Click += cmdSittingStop_Click;
             // 
             // cmdConnectSonbs
             // 
@@ -286,6 +294,7 @@
             cmdSendTopic.TabIndex = 10;
             cmdSendTopic.Text = "Invia ODG";
             cmdSendTopic.UseVisualStyleBackColor = true;
+            cmdSendTopic.Click += cmdSendTopic_Click;
             // 
             // cmdSendTalkOn
             // 
@@ -296,6 +305,7 @@
             cmdSendTalkOn.TabIndex = 11;
             cmdSendTalkOn.Text = "Apri parola";
             cmdSendTalkOn.UseVisualStyleBackColor = true;
+            cmdSendTalkOn.Click += cmdSendTalkOn_Click;
             // 
             // cmdSendTalkOff
             // 
@@ -306,6 +316,7 @@
             cmdSendTalkOff.TabIndex = 12;
             cmdSendTalkOff.Text = "Chiudi parola";
             cmdSendTalkOff.UseVisualStyleBackColor = true;
+            cmdSendTalkOff.Click += cmdSendTalkOff_Click;
             // 
             // cmdCloseAllMics
             // 
@@ -315,25 +326,28 @@
             cmdCloseAllMics.TabIndex = 13;
             cmdCloseAllMics.Text = "Chiudi microfoni";
             cmdCloseAllMics.UseVisualStyleBackColor = true;
+            cmdCloseAllMics.Click += cmdCloseAllMics_Click;
             // 
-            // tcXXX
+            // tcDelegates
             // 
-            tcXXX.Appearance = TabAppearance.FlatButtons;
-            tcXXX.Controls.Add(tabSonbs);
-            tcXXX.Controls.Add(tabGaravot);
-            tcXXX.Location = new Point(224, 12);
-            tcXXX.Name = "tcXXX";
-            tcXXX.SelectedIndex = 0;
-            tcXXX.Size = new Size(471, 208);
-            tcXXX.TabIndex = 14;
+            tcDelegates.Alignment = TabAlignment.Left;
+            tcDelegates.Controls.Add(tabSonbs);
+            tcDelegates.Controls.Add(tabGaravot);
+            tcDelegates.ItemSize = new Size(26, 48);
+            tcDelegates.Location = new Point(212, 12);
+            tcDelegates.Multiline = true;
+            tcDelegates.Name = "tcDelegates";
+            tcDelegates.SelectedIndex = 0;
+            tcDelegates.Size = new Size(483, 208);
+            tcDelegates.TabIndex = 14;
             // 
             // tabSonbs
             // 
             tabSonbs.Controls.Add(viewSonbs);
-            tabSonbs.Location = new Point(4, 27);
+            tabSonbs.Location = new Point(52, 4);
             tabSonbs.Name = "tabSonbs";
             tabSonbs.Padding = new Padding(3);
-            tabSonbs.Size = new Size(463, 177);
+            tabSonbs.Size = new Size(427, 200);
             tabSonbs.TabIndex = 0;
             tabSonbs.Text = "Sonbs";
             tabSonbs.UseVisualStyleBackColor = true;
@@ -344,7 +358,7 @@
             viewSonbs.Dock = DockStyle.Fill;
             viewSonbs.Location = new Point(3, 3);
             viewSonbs.Name = "viewSonbs";
-            viewSonbs.Size = new Size(457, 171);
+            viewSonbs.Size = new Size(421, 194);
             viewSonbs.TabIndex = 5;
             viewSonbs.UseCompatibleStateImageBehavior = false;
             viewSonbs.View = View.Details;
@@ -371,10 +385,10 @@
             // tabGaravot
             // 
             tabGaravot.Controls.Add(viewDelegates);
-            tabGaravot.Location = new Point(4, 27);
+            tabGaravot.Location = new Point(52, 4);
             tabGaravot.Name = "tabGaravot";
             tabGaravot.Padding = new Padding(3);
-            tabGaravot.Size = new Size(463, 177);
+            tabGaravot.Size = new Size(427, 200);
             tabGaravot.TabIndex = 1;
             tabGaravot.Text = "Garavot";
             tabGaravot.UseVisualStyleBackColor = true;
@@ -388,16 +402,18 @@
             btnConfirmTalkRequest.TabIndex = 15;
             btnConfirmTalkRequest.Text = "Accetta";
             btnConfirmTalkRequest.UseVisualStyleBackColor = true;
+            btnConfirmTalkRequest.Click += btnConfirmTalkRequest_Click;
             // 
             // btnRefuteTalkRequest
             // 
             btnRefuteTalkRequest.Enabled = false;
             btnRefuteTalkRequest.Location = new Point(579, 226);
             btnRefuteTalkRequest.Name = "btnRefuteTalkRequest";
-            btnRefuteTalkRequest.Size = new Size(79, 23);
+            btnRefuteTalkRequest.Size = new Size(57, 23);
             btnRefuteTalkRequest.TabIndex = 16;
-            btnRefuteTalkRequest.Text = "Rifiuta";
+            btnRefuteTalkRequest.Text = "Nega";
             btnRefuteTalkRequest.UseVisualStyleBackColor = true;
+            btnRefuteTalkRequest.Click += btnRefuteTalkRequest_Click;
             // 
             // ssLog
             // 
@@ -421,7 +437,7 @@
             Controls.Add(ssLog);
             Controls.Add(btnRefuteTalkRequest);
             Controls.Add(btnConfirmTalkRequest);
-            Controls.Add(tcXXX);
+            Controls.Add(tcDelegates);
             Controls.Add(cmdCloseAllMics);
             Controls.Add(cmdSendTalkOff);
             Controls.Add(cmdSendTalkOn);
@@ -441,7 +457,7 @@
             groupSignIn.ResumeLayout(false);
             groupVotazione.ResumeLayout(false);
             groupVotazione.PerformLayout();
-            tcXXX.ResumeLayout(false);
+            tcDelegates.ResumeLayout(false);
             tabSonbs.ResumeLayout(false);
             tabGaravot.ResumeLayout(false);
             ssLog.ResumeLayout(false);
@@ -480,7 +496,7 @@
         private ColumnHeader colheadTalk;
         private Button cmdSendTalkOff;
         private Button cmdCloseAllMics;
-        private TabControl tcXXX;
+        private TabControl tcDelegates;
         private TabPage tabSonbs;
         private TabPage tabGaravot;
         private ListView viewSonbs;
