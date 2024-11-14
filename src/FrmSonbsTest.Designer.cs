@@ -454,6 +454,7 @@
             MinimizeBox = false;
             Name = "FrmSonbsTest";
             Text = "Test Seduta Sonbs";
+            FormClosing += FrmSonbsTest_FormClosingAsync;
             groupSignIn.ResumeLayout(false);
             groupVotazione.ResumeLayout(false);
             groupVotazione.PerformLayout();

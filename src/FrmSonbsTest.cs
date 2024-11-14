@@ -241,5 +241,11 @@ public sealed partial class FrmSonbsTest : Form
         cmdSendTopic.Enabled = viewOrdini.SelectedItems.Count == 1;
     }
 
+    private async void FrmSonbsTest_FormClosingAsync(object sender, FormClosingEventArgs e)
+    {
+        if (_sonbsClient != null) await _sonbsClient.StopAsync();
+        if (_eventChannel != null) await _eventChannel.CloseAsync();
+    }
+
     //private async Task RabbitEventReceivedAsync(object __, BasicDeliverEventArgs @event){}
 }
