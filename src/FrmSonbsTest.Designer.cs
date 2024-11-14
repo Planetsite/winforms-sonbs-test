@@ -56,8 +56,21 @@
             cmdSendTalkOn = new Button();
             cmdSendTalkOff = new Button();
             cmdCloseAllMics = new Button();
+            tcXXX = new TabControl();
+            tabSonbs = new TabPage();
+            viewSonbs = new ListView();
+            colheadMicId = new ColumnHeader();
+            colheadWired = new ColumnHeader();
+            colheadChairman = new ColumnHeader();
+            colheadAltro = new ColumnHeader();
+            tabGaravot = new TabPage();
+            btnConfirmTalkRequest = new Button();
+            btnRefuteTalkRequest = new Button();
             groupSignIn.SuspendLayout();
             groupVotazione.SuspendLayout();
+            tcXXX.SuspendLayout();
+            tabSonbs.SuspendLayout();
+            tabGaravot.SuspendLayout();
             SuspendLayout();
             // 
             // btnSignInStart
@@ -173,9 +186,10 @@
             // viewDelegates
             // 
             viewDelegates.Columns.AddRange(new ColumnHeader[] { colheadName, colheadSurname, colheadGruppo, colheadSeat, colheadTalk });
-            viewDelegates.Location = new Point(218, 12);
+            viewDelegates.Dock = DockStyle.Fill;
+            viewDelegates.Location = new Point(3, 3);
             viewDelegates.Name = "viewDelegates";
-            viewDelegates.Size = new Size(477, 204);
+            viewDelegates.Size = new Size(457, 171);
             viewDelegates.TabIndex = 4;
             viewDelegates.UseCompatibleStateImageBehavior = false;
             viewDelegates.View = View.Details;
@@ -273,7 +287,7 @@
             cmdSendTalkOn.Enabled = false;
             cmdSendTalkOn.Location = new Point(218, 226);
             cmdSendTalkOn.Name = "cmdSendTalkOn";
-            cmdSendTalkOn.Size = new Size(127, 23);
+            cmdSendTalkOn.Size = new Size(79, 23);
             cmdSendTalkOn.TabIndex = 11;
             cmdSendTalkOn.Text = "Apri parola";
             cmdSendTalkOn.UseVisualStyleBackColor = true;
@@ -281,27 +295,113 @@
             // cmdSendTalkOff
             // 
             cmdSendTalkOff.Enabled = false;
-            cmdSendTalkOff.Location = new Point(351, 226);
+            cmdSendTalkOff.Location = new Point(303, 226);
             cmdSendTalkOff.Name = "cmdSendTalkOff";
-            cmdSendTalkOff.Size = new Size(127, 23);
+            cmdSendTalkOff.Size = new Size(87, 23);
             cmdSendTalkOff.TabIndex = 12;
             cmdSendTalkOff.Text = "Chiudi parola";
             cmdSendTalkOff.UseVisualStyleBackColor = true;
             // 
             // cmdCloseAllMics
             // 
-            cmdCloseAllMics.Location = new Point(484, 226);
+            cmdCloseAllMics.Location = new Point(396, 226);
             cmdCloseAllMics.Name = "cmdCloseAllMics";
-            cmdCloseAllMics.Size = new Size(127, 23);
+            cmdCloseAllMics.Size = new Size(108, 23);
             cmdCloseAllMics.TabIndex = 13;
             cmdCloseAllMics.Text = "Chiudi microfoni";
             cmdCloseAllMics.UseVisualStyleBackColor = true;
+            // 
+            // tcXXX
+            // 
+            tcXXX.Appearance = TabAppearance.FlatButtons;
+            tcXXX.Controls.Add(tabSonbs);
+            tcXXX.Controls.Add(tabGaravot);
+            tcXXX.Location = new Point(224, 12);
+            tcXXX.Name = "tcXXX";
+            tcXXX.SelectedIndex = 0;
+            tcXXX.Size = new Size(471, 208);
+            tcXXX.TabIndex = 14;
+            // 
+            // tabSonbs
+            // 
+            tabSonbs.Controls.Add(viewSonbs);
+            tabSonbs.Location = new Point(4, 27);
+            tabSonbs.Name = "tabSonbs";
+            tabSonbs.Padding = new Padding(3);
+            tabSonbs.Size = new Size(463, 177);
+            tabSonbs.TabIndex = 0;
+            tabSonbs.Text = "Sonbs";
+            tabSonbs.UseVisualStyleBackColor = true;
+            // 
+            // viewSonbs
+            // 
+            viewSonbs.Columns.AddRange(new ColumnHeader[] { colheadMicId, colheadWired, colheadChairman, colheadAltro });
+            viewSonbs.Dock = DockStyle.Fill;
+            viewSonbs.Location = new Point(3, 3);
+            viewSonbs.Name = "viewSonbs";
+            viewSonbs.Size = new Size(457, 171);
+            viewSonbs.TabIndex = 5;
+            viewSonbs.UseCompatibleStateImageBehavior = false;
+            viewSonbs.View = View.Details;
+            // 
+            // colheadMicId
+            // 
+            colheadMicId.Text = "Id";
+            colheadMicId.Width = 25;
+            // 
+            // colheadWired
+            // 
+            colheadWired.Text = "Wired";
+            // 
+            // colheadChairman
+            // 
+            colheadChairman.Text = "Chairman";
+            colheadChairman.Width = 65;
+            // 
+            // colheadAltro
+            // 
+            colheadAltro.Text = "Altro";
+            colheadAltro.Width = 90;
+            // 
+            // tabGaravot
+            // 
+            tabGaravot.Controls.Add(viewDelegates);
+            tabGaravot.Location = new Point(4, 27);
+            tabGaravot.Name = "tabGaravot";
+            tabGaravot.Padding = new Padding(3);
+            tabGaravot.Size = new Size(463, 177);
+            tabGaravot.TabIndex = 1;
+            tabGaravot.Text = "Garavot";
+            tabGaravot.UseVisualStyleBackColor = true;
+            // 
+            // btnConfirmTalkRequest
+            // 
+            btnConfirmTalkRequest.Enabled = false;
+            btnConfirmTalkRequest.Location = new Point(510, 226);
+            btnConfirmTalkRequest.Name = "btnConfirmTalkRequest";
+            btnConfirmTalkRequest.Size = new Size(63, 23);
+            btnConfirmTalkRequest.TabIndex = 15;
+            btnConfirmTalkRequest.Text = "Accetta";
+            btnConfirmTalkRequest.UseVisualStyleBackColor = true;
+            // 
+            // btnRefuteTalkRequest
+            // 
+            btnRefuteTalkRequest.Enabled = false;
+            btnRefuteTalkRequest.Location = new Point(579, 226);
+            btnRefuteTalkRequest.Name = "btnRefuteTalkRequest";
+            btnRefuteTalkRequest.Size = new Size(79, 23);
+            btnRefuteTalkRequest.TabIndex = 16;
+            btnRefuteTalkRequest.Text = "Rifiuta";
+            btnRefuteTalkRequest.UseVisualStyleBackColor = true;
             // 
             // FrmSonbsTest
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(700, 468);
+            ClientSize = new Size(700, 471);
+            Controls.Add(btnRefuteTalkRequest);
+            Controls.Add(btnConfirmTalkRequest);
+            Controls.Add(tcXXX);
             Controls.Add(cmdCloseAllMics);
             Controls.Add(cmdSendTalkOff);
             Controls.Add(cmdSendTalkOn);
@@ -311,7 +411,6 @@
             Controls.Add(cmdSittingStop);
             Controls.Add(cmdSittingStart);
             Controls.Add(viewOrdini);
-            Controls.Add(viewDelegates);
             Controls.Add(groupVotazione);
             Controls.Add(groupSignIn);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -322,6 +421,9 @@
             groupSignIn.ResumeLayout(false);
             groupVotazione.ResumeLayout(false);
             groupVotazione.PerformLayout();
+            tcXXX.ResumeLayout(false);
+            tabSonbs.ResumeLayout(false);
+            tabGaravot.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -355,5 +457,15 @@
         private ColumnHeader colheadTalk;
         private Button cmdSendTalkOff;
         private Button cmdCloseAllMics;
+        private TabControl tcXXX;
+        private TabPage tabSonbs;
+        private TabPage tabGaravot;
+        private ListView viewSonbs;
+        private ColumnHeader colheadMicId;
+        private ColumnHeader colheadWired;
+        private ColumnHeader colheadChairman;
+        private ColumnHeader colheadAltro;
+        private Button btnConfirmTalkRequest;
+        private Button btnRefuteTalkRequest;
     }
 }

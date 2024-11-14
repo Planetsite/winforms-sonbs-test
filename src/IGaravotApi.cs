@@ -10,7 +10,7 @@ public interface IGaravotApi
 {
     // no auth
     [Get("/api/v1/delegates/get_all_frontend")]
-    Task<ApiResponse<DelegateFeDto>> GetDelegatesAsync(CancellationToken cancellation = default);
+    Task<ApiResponse<SearchResponse<DelegateFeDto>>> GetDelegatesAsync(CancellationToken cancellation = default);
 
     // no auth
     [Get("/api/v1/delegategroups/get_all_frontend")]
@@ -40,9 +40,7 @@ public sealed class DelegateFeDto
 {
     public ICollection<int> DelegateGroupIds { get; set; } = new List<int>();
     public long DelegateId { get; set; }
-    //public string ExternalId { get; set; }
     public string FirstName { get; set; }
-    //public ICollection<int> GovernmentBodyIds { get; set; } = new List<int>();
     public string Image { get; set; }
     public string LastName { get; set; }
     public ICollection<int> LegislatureIds { get; set; } = new List<int>();

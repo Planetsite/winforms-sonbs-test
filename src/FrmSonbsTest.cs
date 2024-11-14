@@ -80,6 +80,22 @@ public partial class FrmSonbsTest : Form
                         SortField = DelegateGroupDelegateSortField.Start }]
                 });
                 var delegateGroupDelegatesResponse = await delegateGroupDelegatesResponseTask;
+                foreach (var deleg in delegateResponse.Content.Data.Items)
+                {
+                    //var firstDgd = delegateGroupDelegatesResponse.Content.Data.Items
+                    //    .Where(dgd => dgd.DelegateId == deleg.DelegateId)
+                    //    .Where(dgd => dgd.IsDeleted == false) // dovrei fare join per i delegate group attivi?
+                    //    .First();
+                    //var delegateGroup = delegateGroupsResponse.Content.Data.Items
+                    //    .Where(_ => _.DelegateGroupId == firstDgd.GovernmentBodyId)
+                    //    .First().Acronym;
+
+                    var delegateGroup = delegateGroupsResponse.Content.Data.Items
+                        .Where(_ => deleg.DelegateGroupIds.Contains(_.DelegateGroupId))
+                        .First().Acronym;
+                    viewDelegates.Items.Add(new ListViewItem([deleg.FirstName, deleg.LastName, delegateGroup, "?", "-"]));
+                }
+                // TODO dovrei ancora assegnare mic a delegate
             }
             catch (Exception garavotErr)
             {
@@ -99,7 +115,10 @@ public partial class FrmSonbsTest : Form
     private async void cmdConnectSonbs_Click(object sender, EventArgs e)
     {
         await ConnectSonbsAsync();
-        await _sc6200mhTcpClient.ScanDevicesAsync(default);
+        var devs = await _sc6200mhTcpClient.ScanDevicesAsync(default);
+        viewSonbs.Clear();
+        foreach (var dev in devs.T31)
+            viewSonbs.Items.Add(new ListViewItem([dev.Id.ToString(), dev.IsChairman.ToString(), dev.MicState.ToString(), string.Empty]));
     }
 
     private async void btnConnectGaravot_Click(object sender, EventArgs e)
