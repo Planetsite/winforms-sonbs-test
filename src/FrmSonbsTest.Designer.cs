@@ -38,7 +38,6 @@
             label2 = new Label();
             btnVotazioneEnd = new Button();
             btnVotazioneStart = new Button();
-            label1 = new Label();
             cmbVotazioneTipi = new ComboBox();
             viewDelegates = new ListView();
             colheadName = new ColumnHeader();
@@ -58,12 +57,12 @@
             cmdCloseAllMics = new Button();
             tcDelegates = new TabControl();
             tabSonbs = new TabPage();
-            tabGaravot = new TabPage();
             viewSonbs = new ListView();
             colheadMicId = new ColumnHeader();
             colheadWired = new ColumnHeader();
             colheadChairman = new ColumnHeader();
             colheadAltro = new ColumnHeader();
+            tabGaravot = new TabPage();
             btnConfirmTalkRequest = new Button();
             btnRefuteTalkRequest = new Button();
             ssLog = new StatusStrip();
@@ -113,7 +112,6 @@
             groupVotazione.Controls.Add(label2);
             groupVotazione.Controls.Add(btnVotazioneEnd);
             groupVotazione.Controls.Add(btnVotazioneStart);
-            groupVotazione.Controls.Add(label1);
             groupVotazione.Controls.Add(cmbVotazioneTipi);
             groupVotazione.Location = new Point(12, 75);
             groupVotazione.Name = "groupVotazione";
@@ -174,22 +172,13 @@
             btnVotazioneStart.UseVisualStyleBackColor = true;
             btnVotazioneStart.Click += btnVotazioneStart_Click;
             // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(6, 25);
-            label1.Name = "label1";
-            label1.Size = new Size(30, 15);
-            label1.TabIndex = 1;
-            label1.Text = "Tipo";
-            // 
             // cmbVotazioneTipi
             // 
-            cmbVotazioneTipi.FormattingEnabled = true;
+            cmbVotazioneTipi.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbVotazioneTipi.Items.AddRange(new object[] { "LastValidDirectVoting", "LastValidVotingAfterSigningIn", "FirstValidDirectVoting", "FirstValidVotingAfterSigningIn", "LastValidDirectElection", "LastValidElectionAfterSigningIn", "FirstValidDirectElection", "FirstValidElectionAfterSigningIn", "FirstValidDirectRating", "FirstValidRatingAfterSigningIn", "LastValidDirectRating", "LastValidRatingAfterSigningIn", "FirstValidDirectTwoItems", "FirstValidTwoItemsAfterSigningIn", "LastValidThreeItemsAfterSigningIn", "LastValidThreeItemsAfterSigningIn_2", "LastValidThreeItemsAfterSigningIn_3", "LastValidThreeItemsAfterSigningIn_4", "LastValidDirectThreeItems", "FirstValidDirectThreeItems", "FirstValidThreeItemsAfterSigningIn", "LastValidThreeItemsAfterSigningIn_5", "LastValidDirectFourItems", "FirstValidDirectFourItems", "FirstValidFourItemsAfterSigningIn", "LastValidFourItemsAfterSigningIn", "LastValidDirectFourItems_2", "FirstValidDirectFourItems_2", "Unknown1", "Unknown2", "Unknown3", "Unknown4" });
-            cmbVotazioneTipi.Location = new Point(42, 22);
+            cmbVotazioneTipi.Location = new Point(6, 22);
             cmbVotazioneTipi.Name = "cmbVotazioneTipi";
-            cmbVotazioneTipi.Size = new Size(152, 23);
+            cmbVotazioneTipi.Size = new Size(188, 23);
             cmbVotazioneTipi.TabIndex = 0;
             // 
             // viewDelegates
@@ -356,17 +345,6 @@
             tabSonbs.Text = "Sonbs";
             tabSonbs.UseVisualStyleBackColor = true;
             // 
-            // tabGaravot
-            // 
-            tabGaravot.Controls.Add(viewDelegates);
-            tabGaravot.Location = new Point(52, 4);
-            tabGaravot.Name = "tabGaravot";
-            tabGaravot.Padding = new Padding(3);
-            tabGaravot.Size = new Size(427, 200);
-            tabGaravot.TabIndex = 1;
-            tabGaravot.Text = "Garavot";
-            tabGaravot.UseVisualStyleBackColor = true;
-            // 
             // viewSonbs
             // 
             viewSonbs.Columns.AddRange(new ColumnHeader[] { colheadMicId, colheadWired, colheadChairman, colheadAltro });
@@ -398,6 +376,17 @@
             // 
             colheadAltro.Text = "Stato";
             colheadAltro.Width = 90;
+            // 
+            // tabGaravot
+            // 
+            tabGaravot.Controls.Add(viewDelegates);
+            tabGaravot.Location = new Point(52, 4);
+            tabGaravot.Name = "tabGaravot";
+            tabGaravot.Padding = new Padding(3);
+            tabGaravot.Size = new Size(427, 200);
+            tabGaravot.TabIndex = 1;
+            tabGaravot.Text = "Garavot";
+            tabGaravot.UseVisualStyleBackColor = true;
             // 
             // btnConfirmTalkRequest
             // 
@@ -482,7 +471,6 @@
         private Label label2;
         private Button btnVotazioneEnd;
         private Button btnVotazioneStart;
-        private Label label1;
         private ComboBox cmbVotazioneTipi;
         private ListView viewVoteResult;
         private ColumnHeader colheadVoteName;
