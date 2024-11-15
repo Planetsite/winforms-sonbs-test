@@ -135,7 +135,7 @@ public sealed partial class FrmSonbsTest : Form
         var ev = new TopicChangedEto { Account = "ac103", Title = "" };
         var body = JsonSerializer.Serialize(ev);
         var bytes = Encoding.UTF8.GetBytes(body);
-        await _eventChannel.BasicPublishAsync("", "", true, bytes);
+        await _eventChannel.BasicPublishAsync(RabbitMqExchange, GetEventRoute(ev), true, bytes);
     }
 
     private async void cmdSittingStart_Click(object __, EventArgs _)
@@ -245,6 +245,10 @@ public sealed partial class FrmSonbsTest : Form
         if (_sonbsClient != null) await _sonbsClient.StopAsync();
         if (_eventChannel != null) await _eventChannel.CloseAsync();
     }
+
+    private static string GetEventRoute<T>(T _)
+        => typeof(T).FullName
+            ?? throw new InvalidOperationException("Event name not found");
 
     //private async Task RabbitEventReceivedAsync(object __, BasicDeliverEventArgs @event){}
 
