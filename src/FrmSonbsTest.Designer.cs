@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmSonbsTest));
             btnSignInStart = new Button();
             btnSignInEnd = new Button();
             groupSignIn = new GroupBox();
@@ -445,6 +446,7 @@
             Controls.Add(groupVotazione);
             Controls.Add(groupSignIn);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "FrmSonbsTest";

@@ -68,17 +68,26 @@ public sealed partial class FrmSonbsTest : Form
     {
         // TODO non posso stoppare una votazione se non è cominciata
         if (_sonbsClient == null) { tslLog.Text = "votazione: sonbs non inizializzato"; return; }
+        var voti = await _sonbsClient.StopVotingAsync();
+        tslLog.Text = $"votazione terminata: {voti} voti";
+        viewVoteResult.Items.Clear();
+        foreach (var voto in voti)
+        {
+            // TODO trova nome da micId
+            viewVoteResult.Items.Add(new ListViewItem(["TODO", "-"]));
+        }
     }
 
     private async void btnVotazioneStart_Click(object __, EventArgs _)
     {
-        if (cmbVotazioneTipi.SelectedValue == null) { tslLog.Text = "inizia votazione: nessuna votazione selezionata"; return; }
+        if (cmbVotazioneTipi.SelectedItem == null) { tslLog.Text = "inizia votazione: nessuna votazione selezionata"; return; }
         if (_sonbsClient == null) { tslLog.Text = "inizia votazione: sonbs non inizializzato"; return; }
 
-        var mode = Enum.Parse<VotingMode>((string)cmbVotazioneTipi.SelectedValue);
+        var mode = Enum.Parse<VotingMode>((string)cmbVotazioneTipi.SelectedItem);
         await _sonbsClient.StartVoting2Async(mode, default);
         tslLog.Text = $"votazione {mode} avviata";
         // TODO stato: in votazione
+        // TODO non c'è endpoint per eventi di votazione vero? raccoglie tutto alla fine? non ricordo
     }
 
     private void cmdCloseAllMics_Click(object __, EventArgs _)
@@ -236,6 +245,7 @@ public sealed partial class FrmSonbsTest : Form
         tslLog.Text = "provo a connettere sonbs";
         _sonbsClient = new Sc6200mhTcpClient(new StatusStripLogger2<Sc6200mhTcpClient>(_logger), new Sc6200mhTcpClientSettings(SonbsHost));
         _sonbsClient.MicStatusChangedAsync = SonbsMicEventReceivedAsync;
+        _sonbsClient.EmitPowerAsync = SonbsPowerEmittedAsync;
         await _sonbsClient.StartAsync();
         tslLog.Text = "sonbs connesso";
     }
@@ -275,6 +285,12 @@ public sealed partial class FrmSonbsTest : Form
 
         // invia evento a rabbit
         if (_eventChannel == null) return;
+    }
+
+    private async Task SonbsPowerEmittedAsync(Planet.Devices.Power.PowerStatus status)
+    {
+        if (status == Planet.Devices.Power.PowerStatus.Stopped) _sonbsClient = null;
+        tslLog.Text = $"evento sonbs: power {status}";
     }
 
     private void viewOrdini_SelectedIndexChanged(object __, EventArgs _)
