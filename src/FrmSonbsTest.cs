@@ -51,7 +51,7 @@ public sealed partial class FrmSonbsTest : Form
         await ConnectSonbsAsync();
 
         _sonbsDevs = await _sonbsClient!.ScanDevicesAsync(default);
-        viewSonbs.Clear();
+        viewSonbs.Items.Clear();
         foreach (var dev in _sonbsDevs.T31)
             viewSonbs.Items.Add(new ListViewItem([dev.Id.Id.ToString(), dev.Id.Target.ToString(), dev.IsChairman.ToString(), dev.MicState.ToString()]));
     }
