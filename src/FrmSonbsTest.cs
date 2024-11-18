@@ -15,6 +15,7 @@ namespace SonbsTest;
 public sealed partial class FrmSonbsTest : Form
 {
     private readonly IConfigurationRoot _config;
+    private SonbsToGaravot[] _delegatesMic;
     private IChannel? _eventChannel;
     private IGaravotApi? _garavotApi;
     private GovernmentData? _governmentData;
@@ -29,6 +30,16 @@ public sealed partial class FrmSonbsTest : Form
         _logger = new StatusStripLogger(tslLog);
         cmbVotazioneTipi.SelectedIndex = 0;
         tslLog.Text = "Ready";
+
+        // TEMP
+        _delegatesMic = new[]
+        {
+            new SonbsToGaravot(1, new RecvMessageId(1, UnitIdType.Wireless)),
+            new SonbsToGaravot(2, new RecvMessageId(2, UnitIdType.Wireless)),
+            new SonbsToGaravot(3, new RecvMessageId(1, UnitIdType.Wired)),
+            new SonbsToGaravot(4, new RecvMessageId(2, UnitIdType.Wired)),
+            new SonbsToGaravot(5, new RecvMessageId(3, UnitIdType.Wired)),
+        };
     }
 
     private void btnConfirmTalkRequest_Click(object __, EventArgs _)
@@ -73,8 +84,9 @@ public sealed partial class FrmSonbsTest : Form
         viewVoteResult.Items.Clear();
         foreach (var voto in voti)
         {
-            // TODO trova nome da micId
-            viewVoteResult.Items.Add(new ListViewItem(["TODO", "-"]));
+            var delegateMic = _delegatesMic.Where(_ => _.SonbsId == voto.MicId).First();
+            var dlgt = _governmentData.Delegates.Where(_ => _.DelegateId == delegateMic.GaravotId).First();
+            viewVoteResult.Items.Add(new ListViewItem([$"{dlgt.FirstName} {dlgt.LastName}", "-"]));
         }
     }
 
@@ -298,7 +310,10 @@ public sealed partial class FrmSonbsTest : Form
         cmdSendTopic.Enabled = viewOrdini.SelectedItems.Count == 1;
     }
 }
+
 sealed record GovernmentData(
     IEnumerable<DelegateFeDto> Delegates,
     IEnumerable<DelegateGroupFeDto> DelegateGroups,
     IEnumerable<GovernmentBodyDelegateDto> DelegateGroupDelegates);
+
+record struct SonbsToGaravot(int GaravotId, RecvMessageId SonbsId);
