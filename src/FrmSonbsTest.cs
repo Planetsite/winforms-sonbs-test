@@ -35,11 +35,11 @@ public sealed partial class FrmSonbsTest : Form
         // TEMP
         _delegatesMic = new[]
         {
-            new SonbsToGaravot(1, new RecvMessageId(1, UnitIdType.Wireless)),
-            new SonbsToGaravot(2, new RecvMessageId(2, UnitIdType.Wireless)),
-            new SonbsToGaravot(3, new RecvMessageId(1, UnitIdType.Wired)),
-            new SonbsToGaravot(4, new RecvMessageId(2, UnitIdType.Wired)),
-            new SonbsToGaravot(5, new RecvMessageId(3, UnitIdType.Wired)),
+            new SonbsToGaravot(17, new RecvMessageId(1, UnitIdType.Wireless)), // pieropan
+            new SonbsToGaravot(23, new RecvMessageId(2, UnitIdType.Wireless)), // turrini
+            new SonbsToGaravot(137, new RecvMessageId(1, UnitIdType.Wired)), // de santis, presidente
+            new SonbsToGaravot(29, new RecvMessageId(2, UnitIdType.Wired)), // castellini
+            new SonbsToGaravot(35, new RecvMessageId(3, UnitIdType.Wired)), // costantino
         };
     }
 
@@ -109,12 +109,14 @@ public sealed partial class FrmSonbsTest : Form
         // TODO non c'è endpoint per eventi di votazione vero? raccoglie tutto alla fine? non ricordo
     }
 
-    private void cmdCloseAllMics_Click(object __, EventArgs _)
+    private async void cmdCloseAllMics_Click(object __, EventArgs _)
     {
         if (_sonbsClient == null) { _logger.LogError("chiudi tutti mic: sonbs non inizializzato"); return; }
         if (_eventChannel == null) { _logger.LogError("chiudi tutti mic: rabbit non inizializzato"); return; }
 
-        var ev = new AllMicrophonesOffEto { Account = "" };
+        var ev = new AllMicrophonesOffEto { Account = GaravotAccount };
+        await SendEventAsync(ev);
+        _logger.LogInformation("inviato evento All Mics Off");
     }
 
     private async void cmdConnectSonbs_Click(object __, EventArgs _)
@@ -134,11 +136,12 @@ public sealed partial class FrmSonbsTest : Form
 
         var ev = new TalkStartedEto
         {
-            Account = "",
+            Account = GaravotAccount,
             CardNumber = "",
             SeatNumber = "",
             MicrophoneStatus = TalkMicrophoneStatus.Close,
         };
+        await SendEventAsync(ev);
     }
 
     private async void cmdSendTalkOn_Click(object __, EventArgs _)
@@ -148,11 +151,12 @@ public sealed partial class FrmSonbsTest : Form
 
         var ev = new TalkStartedEto
         {
-            Account = "",
+            Account = GaravotAccount,
             CardNumber = "",
             SeatNumber = "",
             MicrophoneStatus = TalkMicrophoneStatus.Open,
         };
+        await SendEventAsync(ev);
     }
 
     private async void cmdSendTopic_Click(object __, EventArgs _)
@@ -161,9 +165,7 @@ public sealed partial class FrmSonbsTest : Form
         if (viewOrdini.SelectedItems.Count != 1) { _logger.LogError("topic: selezionare un ordine"); return; }
 
         var ev = new TopicChangedEto { Account = "ac103", Title = "" };
-        var body = JsonSerializer.Serialize(ev);
-        var bytes = Encoding.UTF8.GetBytes(body);
-        await _eventChannel.BasicPublishAsync(RabbitMqExchange, GetEventRoute(ev), true, bytes);
+        await SendEventAsync(ev);
     }
 
     private async void cmdSittingStart_Click(object __, EventArgs _)
@@ -277,9 +279,16 @@ public sealed partial class FrmSonbsTest : Form
 
     private static string GetEventRoute<T>(T _)
         => typeof(T).FullName
-            ?? throw new InvalidOperationException("Event name not found");
+            ?? throw new System.Diagnostics.UnreachableException();
 
     //private async Task RabbitEventReceivedAsync(object __, BasicDeliverEventArgs @event){}
+
+    private async Task SendEventAsync<T>(T ev) where T : Planet.EventBus.IPlanetIntegrationEvent
+    {
+        var body = JsonSerializer.Serialize(ev);
+        var bytes = Encoding.UTF8.GetBytes(body);
+        await _eventChannel!.BasicPublishAsync(RabbitMqExchange, GetEventRoute(ev), true, bytes);
+    }
 
     private async Task SonbsMicEventReceivedAsync((RecvMessageId MicId, bool IsOpen) eventData)
     {
@@ -304,6 +313,14 @@ public sealed partial class FrmSonbsTest : Form
 
         // invia evento a rabbit
         if (_eventChannel == null) return;
+
+        var ev = new TalkStartedEto
+        {
+            Account = GaravotAccount,
+            CardNumber = "",
+            SeatNumber = "",
+            MicrophoneStatus = eventData.IsOpen ? TalkMicrophoneStatus.Open : TalkMicrophoneStatus.Close,
+        };
     }
 
     private async Task SonbsPowerEmittedAsync(Planet.Devices.Power.PowerStatus status)
@@ -316,6 +333,8 @@ public sealed partial class FrmSonbsTest : Form
     {
         cmdSendTopic.Enabled = viewOrdini.SelectedItems.Count == 1;
     }
+
+    const string GaravotAccount = "ac114";
 }
 
 sealed record GovernmentData(
