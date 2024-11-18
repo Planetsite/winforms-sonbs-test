@@ -1,5 +1,6 @@
 using IdentityModel.Client;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Planet.Core.Shared.Request;
 using Planet.IntegrationEvents.LiveEvent;
 using RabbitMQ.Client;
@@ -29,7 +30,7 @@ public sealed partial class FrmSonbsTest : Form
         InitializeComponent();
         _logger = new StatusStripLogger(tslLog);
         cmbVotazioneTipi.SelectedIndex = 0;
-        tslLog.Text = "Ready";
+        _logger.LogInformation("Ready");
 
         // TEMP
         _delegatesMic = new[]
@@ -44,7 +45,7 @@ public sealed partial class FrmSonbsTest : Form
 
     private void btnConfirmTalkRequest_Click(object __, EventArgs _)
     {
-        if (_sonbsClient == null) { tslLog.Text = "conferma richiesta parola: sonbs non inizializzato"; return; }
+        if (_sonbsClient == null) { _logger.LogError("conferma richiesta parola: sonbs non inizializzato"); return; }
 
     }
 
@@ -56,20 +57,20 @@ public sealed partial class FrmSonbsTest : Form
 
     private void btnRefuteTalkRequest_Click(object __, EventArgs _)
     {
-        if (_sonbsClient == null) { tslLog.Text = "nega richiesta parola: sonbs non inizializzato"; return; }
+        if (_sonbsClient == null) { _logger.LogError("nega richiesta parola: sonbs non inizializzato"); return; }
 
     }
 
     private async void btnSignInEnd_Click(object __, EventArgs _)
     {
-        if (_sonbsClient == null) { tslLog.Text = "sign in: sonbs non inizializzato"; return; }
+        if (_sonbsClient == null) { _logger.LogError("sign in: sonbs non inizializzato"); return; }
         await _sonbsClient.StopSignInAsync(default);
     }
 
     private async void btnSignInStart_Click(object __, EventArgs _)
     {
-        if (_sonbsClient == null) { tslLog.Text = "sign in: sonbs non inizializzato"; return; }
-        tslLog.Text = "ATTENZIONE SIGN IN INIZIATO -- VERRÀ ATTESA CONFERMA DAI MICROFONI";
+        if (_sonbsClient == null) { _logger.LogError("sign in: sonbs non inizializzato"); return; }
+        _logger.LogError("ATTENZIONE SIGN IN INIZIATO -- VERRÀ ATTESA CONFERMA DAI MICROFONI");
         // TODO meccanismo stop? potrei fare pulsante signin a doppio stato?
         var x = await _sonbsClient.WaitSignInAsync(_sonbsDevs.T31.Count, default);
         // TODO QUESTO CORRISPONDE AD UNO STATO? devo bloccare operazioni finché non finisce
@@ -78,34 +79,40 @@ public sealed partial class FrmSonbsTest : Form
     private async void btnVotazioneEnd_Click(object __, EventArgs _)
     {
         // TODO non posso stoppare una votazione se non è cominciata
-        if (_sonbsClient == null) { tslLog.Text = "votazione: sonbs non inizializzato"; return; }
+        if (_sonbsClient == null) { _logger.LogError("votazione: sonbs non inizializzato"); return; }
         var voti = await _sonbsClient.StopVotingAsync();
-        tslLog.Text = $"votazione terminata: {voti} voti";
+        _logger.LogInformation($"votazione terminata: {voti} voti");
         viewVoteResult.Items.Clear();
         foreach (var voto in voti)
         {
-            var delegateMic = _delegatesMic.Where(_ => _.SonbsId == voto.MicId).First();
+            var delegateMicWhere = _delegatesMic.Where(_ => _.SonbsId == voto.MicId);
+            if (delegateMicWhere.Any() == false)
+            {
+                _logger.LogWarning($"voto non associato a delegate: {voto.MicId}");
+                continue;
+            }
+            var delegateMic = delegateMicWhere.First();
             var dlgt = _governmentData.Delegates.Where(_ => _.DelegateId == delegateMic.GaravotId).First();
-            viewVoteResult.Items.Add(new ListViewItem([$"{dlgt.FirstName} {dlgt.LastName}", "-"]));
+            viewVoteResult.Items.Add(new ListViewItem([$"{dlgt.FirstName} {dlgt.LastName}", ((int)voto.Vote).ToString()]));
         }
     }
 
     private async void btnVotazioneStart_Click(object __, EventArgs _)
     {
-        if (cmbVotazioneTipi.SelectedItem == null) { tslLog.Text = "inizia votazione: nessuna votazione selezionata"; return; }
-        if (_sonbsClient == null) { tslLog.Text = "inizia votazione: sonbs non inizializzato"; return; }
+        if (cmbVotazioneTipi.SelectedItem == null) { _logger.LogError("inizia votazione: nessuna votazione selezionata"); return; }
+        if (_sonbsClient == null) { _logger.LogError("inizia votazione: sonbs non inizializzato"); return; }
 
         var mode = Enum.Parse<VotingMode>((string)cmbVotazioneTipi.SelectedItem);
         await _sonbsClient.StartVoting2Async(mode, default);
-        tslLog.Text = $"votazione {mode} avviata";
+        _logger.LogInformation($"votazione {mode} avviata");
         // TODO stato: in votazione
         // TODO non c'è endpoint per eventi di votazione vero? raccoglie tutto alla fine? non ricordo
     }
 
     private void cmdCloseAllMics_Click(object __, EventArgs _)
     {
-        if (_sonbsClient == null) { tslLog.Text = "chiudi tutti mic: sonbs non inizializzato"; return; }
-        if (_eventChannel == null) { tslLog.Text = "chiudi tutti mic: rabbit non inizializzato"; return; }
+        if (_sonbsClient == null) { _logger.LogError("chiudi tutti mic: sonbs non inizializzato"); return; }
+        if (_eventChannel == null) { _logger.LogError("chiudi tutti mic: rabbit non inizializzato"); return; }
 
         var ev = new AllMicrophonesOffEto { Account = "" };
     }
@@ -122,8 +129,8 @@ public sealed partial class FrmSonbsTest : Form
 
     private async void cmdSendTalkOff_Click(object __, EventArgs _)
     {
-        if (_sonbsClient == null) { tslLog.Text = "chiudi parola: sonbs non inizializzato"; return; }
-        if (_eventChannel == null) { tslLog.Text = "chiudi parola: rabbit non inizializzato"; return; }
+        if (_sonbsClient == null) { _logger.LogError("chiudi parola: sonbs non inizializzato"); return; }
+        if (_eventChannel == null) { _logger.LogError("chiudi parola: rabbit non inizializzato"); return; }
 
         var ev = new TalkStartedEto
         {
@@ -136,8 +143,8 @@ public sealed partial class FrmSonbsTest : Form
 
     private async void cmdSendTalkOn_Click(object __, EventArgs _)
     {
-        if (_sonbsClient == null) { tslLog.Text = "apri parola: sonbs non inizializzato"; return; }
-        if (_eventChannel == null) { tslLog.Text = "apri parola: rabbit non inizializzato"; return; }
+        if (_sonbsClient == null) { _logger.LogError("apri parola: sonbs non inizializzato"); return; }
+        if (_eventChannel == null) { _logger.LogError("apri parola: rabbit non inizializzato"); return; }
 
         var ev = new TalkStartedEto
         {
@@ -150,8 +157,8 @@ public sealed partial class FrmSonbsTest : Form
 
     private async void cmdSendTopic_Click(object __, EventArgs _)
     {
-        if (_eventChannel == null) { tslLog.Text = "invia topic: rabbit non inizializzato"; return; }
-        if (viewOrdini.SelectedItems.Count != 1) { tslLog.Text = "topic: selezionare un ordine"; return; }
+        if (_eventChannel == null) { _logger.LogError("invia topic: rabbit non inizializzato"); return; }
+        if (viewOrdini.SelectedItems.Count != 1) { _logger.LogError("topic: selezionare un ordine"); return; }
 
         var ev = new TopicChangedEto { Account = "ac103", Title = "" };
         var body = JsonSerializer.Serialize(ev);
@@ -161,13 +168,13 @@ public sealed partial class FrmSonbsTest : Form
 
     private async void cmdSittingStart_Click(object __, EventArgs _)
     {
-        if (_eventChannel == null) { tslLog.Text = "inizia seduta: rabbit non inizializzato"; return; }
+        if (_eventChannel == null) { _logger.LogError("inizia seduta: rabbit non inizializzato"); return; }
 
     }
 
     private async void cmdSittingStop_Click(object __, EventArgs _)
     {
-        if (_eventChannel == null) { tslLog.Text = "fine seduta: rabbit non inizializzato"; return; }
+        if (_eventChannel == null) { _logger.LogError("fine seduta: rabbit non inizializzato"); return; }
 
     }
 
@@ -184,7 +191,7 @@ public sealed partial class FrmSonbsTest : Form
                 ClientSecret = GaravotClientSecret,
                 Scope = "email profile roles",
             });
-            if (string.IsNullOrEmpty(test.AccessToken)) { tslLog.Text = "ERRORE garavot token non ottenuto"; return; }
+            if (string.IsNullOrEmpty(test.AccessToken)) { _logger.LogError("ERRORE garavot token non ottenuto"); return; }
             accessToken = test.AccessToken;
         }
 
@@ -249,17 +256,17 @@ public sealed partial class FrmSonbsTest : Form
         //consumer.ReceivedAsync += RabbitEventReceivedAsync;
         //await _eventChannel.BasicConsumeAsync(queue: "task_queue", autoAck: true, consumer);
 
-        tslLog.Text = "rabbit connesso";
+        _logger.LogInformation("rabbit connesso");
     }
 
     private async Task ConnectSonbsAsync()
     {
-        tslLog.Text = "provo a connettere sonbs";
+        _logger.LogInformation("provo a connettere sonbs");
         _sonbsClient = new Sc6200mhTcpClient(new StatusStripLogger2<Sc6200mhTcpClient>(_logger), new Sc6200mhTcpClientSettings(SonbsHost));
         _sonbsClient.MicStatusChangedAsync = SonbsMicEventReceivedAsync;
         _sonbsClient.EmitPowerAsync = SonbsPowerEmittedAsync;
         await _sonbsClient.StartAsync();
-        tslLog.Text = "sonbs connesso";
+        _logger.LogInformation("sonbs connesso");
     }
 
     private async void FrmSonbsTest_FormClosingAsync(object sender, FormClosingEventArgs e)
@@ -290,10 +297,10 @@ public sealed partial class FrmSonbsTest : Form
         }
         if (wasSet == false)
         {
-            tslLog.Text = $"evento sonbs: mic non trovato [id: {eventMicIdString}, wired: {eventMicTargetString}]";
+            _logger.LogWarning($"evento sonbs: mic non trovato [id: {eventMicIdString}, wired: {eventMicTargetString}]");
             return;
         }
-        tslLog.Text = $"evento sonbs: mic aperto {eventData.IsOpen} [id: {eventMicIdString}, wired: {eventMicTargetString}]";
+        _logger.LogInformation($"evento sonbs: mic aperto {eventData.IsOpen} [id: {eventMicIdString}, wired: {eventMicTargetString}]");
 
         // invia evento a rabbit
         if (_eventChannel == null) return;
@@ -302,7 +309,7 @@ public sealed partial class FrmSonbsTest : Form
     private async Task SonbsPowerEmittedAsync(Planet.Devices.Power.PowerStatus status)
     {
         if (status == Planet.Devices.Power.PowerStatus.Stopped) _sonbsClient = null;
-        tslLog.Text = $"evento sonbs: power {status}";
+        _logger.LogWarning($"evento sonbs: power {status}");
     }
 
     private void viewOrdini_SelectedIndexChanged(object __, EventArgs _)
