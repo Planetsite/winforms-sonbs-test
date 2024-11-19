@@ -13,10 +13,18 @@ namespace SonbsTest;
 
 // TODO try-catch
 
+// architettura
+// dovremmo quindi avere rabbit che invia eventi metadati sia a garavot che director?
+// che significa avere exchange direct con bindate queue garavot + queue director con routing key stessi eventi
+// però non penso di poterlo fare tra istanze diverse di rabbit
+// quindi dovrei connettere tutti ad uno stesso rabbit? tipo 205 o demo stesso?
+
+// TODO devo fare un client tipo servizio per keycloak
+
 public sealed partial class FrmSonbsTest : Form
 {
     private readonly IConfigurationRoot _config;
-    private SonbsToGaravot[] _delegatesMic;
+    private readonly SonbsToGaravot[] _delegatesMic;
     private IChannel? _eventChannel;
     private IGaravotApi? _garavotApi;
     private GovernmentData? _governmentData;
@@ -51,8 +59,8 @@ public sealed partial class FrmSonbsTest : Form
 
     private async void btnConnectGaravot_Click(object __, EventArgs _)
     {
-        await ConnectGaravotAsync();
         await ConnectRabbitAsync();
+        await ConnectGaravotAsync();
     }
 
     private void btnRefuteTalkRequest_Click(object __, EventArgs _)
@@ -80,6 +88,8 @@ public sealed partial class FrmSonbsTest : Form
     {
         // TODO non posso stoppare una votazione se non è cominciata
         if (_sonbsClient == null) { _logger.LogError("votazione: sonbs non inizializzato"); return; }
+        if (_governmentData == null) { _logger.LogError("votazione: garavot non inizializzato"); return; }
+
         var voti = await _sonbsClient.StopVotingAsync();
         _logger.LogInformation($"votazione terminata: {voti} voti");
         viewVoteResult.Items.Clear();
@@ -101,6 +111,7 @@ public sealed partial class FrmSonbsTest : Form
     {
         if (cmbVotazioneTipi.SelectedItem == null) { _logger.LogError("inizia votazione: nessuna votazione selezionata"); return; }
         if (_sonbsClient == null) { _logger.LogError("inizia votazione: sonbs non inizializzato"); return; }
+        if (_governmentData == null) { _logger.LogError("inizia votazione: garavot non inizializzato"); return; }
 
         var mode = Enum.Parse<VotingMode>((string)cmbVotazioneTipi.SelectedItem);
         await _sonbsClient.StartVoting2Async(mode, default);
@@ -230,7 +241,15 @@ public sealed partial class FrmSonbsTest : Form
                 var delegateGroupQuery = delegateGroupsResponse.Content.Data.Items.Where(_ => deleg.DelegateGroupIds.Contains(_.DelegateGroupId));
                 if (delegateGroupQuery.Any() == false) continue;
                 var delegateGroup = delegateGroupQuery.First().Acronym;
-                viewDelegates.Items.Add(new ListViewItem([deleg.FirstName, deleg.LastName, delegateGroup, "?", "-"]));
+
+                // non c'è seat/card da api quindi prendo sonbs
+                var micData = _delegatesMic.Where(_ => _.GaravotId == deleg.DelegateId);
+                var micFirst = micData.FirstOrDefault();
+                var micId = micData.Any()
+                    ? micFirst.SonbsId.Id.ToString() + (micFirst.SonbsId.Target == UnitIdType.Wireless ? 'W' : 'C')
+                    : " ";
+
+                viewDelegates.Items.Add(new ListViewItem([deleg.FirstName, deleg.LastName, delegateGroup, micId, "-"]));
             }
             // TODO dovrei ancora assegnare mic a delegate
         }
