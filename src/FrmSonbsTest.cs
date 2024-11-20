@@ -145,11 +145,13 @@ public sealed partial class FrmSonbsTest : Form
         if (_sonbsClient == null) { _logger.LogError("chiudi parola: sonbs non inizializzato"); return; }
         if (_eventChannel == null) { _logger.LogError("chiudi parola: rabbit non inizializzato"); return; }
 
+        var selected = GetIdFromDelegatesTab();
+        if (selected == null) return;
+
         var ev = new TalkStartedEto
         {
             Account = GaravotAccount,
-            CardNumber = "",
-            SeatNumber = "",
+            SeatNumber = selected.Value.Seat.ToString(),
             MicrophoneStatus = TalkMicrophoneStatus.Close,
         };
         await SendEventAsync(ev);
@@ -160,11 +162,11 @@ public sealed partial class FrmSonbsTest : Form
         if (_sonbsClient == null) { _logger.LogError("apri parola: sonbs non inizializzato"); return; }
         if (_eventChannel == null) { _logger.LogError("apri parola: rabbit non inizializzato"); return; }
 
+        var selected = GetIdFromDelegatesTab();
         var ev = new TalkStartedEto
         {
             Account = GaravotAccount,
-            CardNumber = "",
-            SeatNumber = "",
+            SeatNumber = selected.Value.Seat.ToString(),
             MicrophoneStatus = TalkMicrophoneStatus.Open,
         };
         await SendEventAsync(ev);
@@ -222,8 +224,8 @@ public sealed partial class FrmSonbsTest : Form
                 Page = 1,
                 PageSize = short.MaxValue,
                 SortBy = [new SortCriteria<DelegateGroupDelegateSortField> {
-                        Direction = SortDirection.Ascending,
-                        SortField = DelegateGroupDelegateSortField.Start }]
+                    Direction = SortDirection.Ascending,
+                    SortField = DelegateGroupDelegateSortField.Start }]
             });
             _governmentData = new GovernmentData(delegateResponse.Content.Data.Items, delegateGroupsResponse.Content.Data.Items,
                 delegateGroupDelegatesResponse.Content.Data.Items);
@@ -251,7 +253,6 @@ public sealed partial class FrmSonbsTest : Form
 
                 viewDelegates.Items.Add(new ListViewItem([deleg.FirstName, deleg.LastName, delegateGroup, micId, "-"]));
             }
-            // TODO dovrei ancora assegnare mic a delegate
         }
         catch (Exception garavotErr)
         {
@@ -268,7 +269,7 @@ public sealed partial class FrmSonbsTest : Form
             Password = RabbitMqPass,
         };
 
-        // TODO rabbitmqConnection e _eventChannel sono ovviamente log-lived e da fare dispose
+        // TODO rabbitmqConnection e _eventChannel sono ovviamente long-lived e da fare dispose
         var rabbitmqConnection = await rabbitmqConnectionFactory.CreateConnectionAsync();
         _eventChannel = await rabbitmqConnection.CreateChannelAsync();
 
@@ -300,6 +301,26 @@ public sealed partial class FrmSonbsTest : Form
         => typeof(T).FullName
             ?? throw new System.Diagnostics.UnreachableException();
 
+    private (int Seat, RecvMessageId SonbsId)? GetIdFromDelegatesTab()
+    {
+        if (tcDelegates.SelectedIndex == 0)
+        {
+            if (viewSonbs.SelectedItems.Count != 1) { _logger.LogError("selezionare un microfono"); return null; }
+            var micId = new RecvMessageId(
+                viewSonbs.SelectedItems[0].TabSonbsGetId(),
+                viewSonbs.SelectedItems[0].TabSonbsGetConnection());
+            var seat = _delegatesMic.Where(_ => _.SonbsId == micId).First();
+            return (seat.GaravotId, micId);
+        }
+        else
+        {
+            if (viewDelegates.SelectedItems.Count != 1) { _logger.LogError("selezionare un delegato"); return null; }
+            var seat = viewDelegates.SelectedItems[0].TabDelegatesGetSeat();
+            var micId = _delegatesMic.Where(_ => _.GaravotId == seat).First();
+            return (seat, micId.SonbsId);
+        }
+    }
+
     //private async Task RabbitEventReceivedAsync(object __, BasicDeliverEventArgs @event){}
 
     private async Task SendEventAsync<T>(T ev) where T : Planet.EventBus.IPlanetIntegrationEvent
@@ -311,24 +332,22 @@ public sealed partial class FrmSonbsTest : Form
 
     private async Task SonbsMicEventReceivedAsync((RecvMessageId MicId, bool IsOpen) eventData)
     {
-        var eventMicIdString = eventData.MicId.Id.ToString();
-        var eventMicTargetString = eventData.MicId.Target.ToString();
         bool wasSet = false;
         for (int itemId = 0; itemId < viewSonbs.Items.Count; ++itemId)
         {
-            if (viewSonbs.Items[0].SubItems[0].Text == eventMicIdString && viewSonbs.Items[0].SubItems[1].Text == eventMicTargetString)
+            if (viewSonbs.Items[itemId].TabSonbsGetId() == eventData.MicId.Id && viewSonbs.Items[itemId].TabSonbsGetConnection() == eventData.MicId.Target)
             {
                 wasSet = true;
-                viewSonbs.Items[0].SubItems[3].Text = eventData.IsOpen.ToString();
+                viewSonbs.Items[itemId].TabSonbsSetIsOpen(eventData.IsOpen);
                 break;
             }
         }
         if (wasSet == false)
         {
-            _logger.LogWarning($"evento sonbs: mic non trovato [id: {eventMicIdString}, wired: {eventMicTargetString}]");
+            _logger.LogWarning($"evento sonbs: mic non trovato [id: {eventData.MicId.Id}, wired: {eventData.MicId.Target}]");
             return;
         }
-        _logger.LogInformation($"evento sonbs: mic aperto {eventData.IsOpen} [id: {eventMicIdString}, wired: {eventMicTargetString}]");
+        _logger.LogInformation($"evento sonbs: mic aperto {eventData.IsOpen} [id: {eventData.MicId.Id}, wired: {eventData.MicId.Target}]");
 
         // invia evento a rabbit
         if (_eventChannel == null) return;
@@ -336,7 +355,6 @@ public sealed partial class FrmSonbsTest : Form
         var ev = new TalkStartedEto
         {
             Account = GaravotAccount,
-            CardNumber = "",
             SeatNumber = "",
             MicrophoneStatus = eventData.IsOpen ? TalkMicrophoneStatus.Open : TalkMicrophoneStatus.Close,
         };
@@ -362,3 +380,11 @@ sealed record GovernmentData(
     IEnumerable<GovernmentBodyDelegateDto> DelegateGroupDelegates);
 
 record struct SonbsToGaravot(int GaravotId, RecvMessageId SonbsId);
+
+file static class FrmSonbsTestExtensions
+{
+    public static int TabDelegatesGetSeat(this ListViewItem i) => int.Parse(i.SubItems[3].Text);
+    public static UnitIdType TabSonbsGetConnection(this ListViewItem i) => i.SubItems[1].Text == "W" ? UnitIdType.Wireless : UnitIdType.Wired;
+    public static short TabSonbsGetId(this ListViewItem i) => short.Parse(i.SubItems[0].Text);
+    public static void TabSonbsSetIsOpen(this ListViewItem i, bool isOpen) => i.SubItems[3].Text = isOpen.ToString();
+}
