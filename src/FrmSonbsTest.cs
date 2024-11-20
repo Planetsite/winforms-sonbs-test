@@ -80,6 +80,8 @@ public sealed partial class FrmSonbsTest : Form
         if (_sonbsClient == null) { _logger.LogError("sign in: sonbs non inizializzato"); return; }
         _logger.LogError("ATTENZIONE SIGN IN INIZIATO -- VERRÀ ATTESA CONFERMA DAI MICROFONI");
         // TODO meccanismo stop? potrei fare pulsante signin a doppio stato?
+        // ma poi cosa me ne faccio dei risultati, li tengo internamente? li mostro?
+        // devo dis/attivare votazione? potrei precaricare view risultati
         var x = await _sonbsClient.WaitSignInAsync(_sonbsDevs.T31.Count, default);
         // TODO QUESTO CORRISPONDE AD UNO STATO? devo bloccare operazioni finché non finisce
     }
@@ -107,6 +109,7 @@ public sealed partial class FrmSonbsTest : Form
         }
     }
 
+    // TODO dovrei attivare votazione solo se è selezionato un ordine del giorno
     private async void btnVotazioneStart_Click(object __, EventArgs _)
     {
         if (cmbVotazioneTipi.SelectedItem == null) { _logger.LogError("inizia votazione: nessuna votazione selezionata"); return; }
@@ -117,7 +120,6 @@ public sealed partial class FrmSonbsTest : Form
         await _sonbsClient.StartVoting2Async(mode, default);
         _logger.LogInformation($"votazione {mode} avviata");
         // TODO stato: in votazione
-        // TODO non c'è endpoint per eventi di votazione vero? raccoglie tutto alla fine? non ricordo
     }
 
     private async void cmdCloseAllMics_Click(object __, EventArgs _)
@@ -127,6 +129,10 @@ public sealed partial class FrmSonbsTest : Form
 
         var ev = new AllMicrophonesOffEto { Account = GaravotAccount };
         await SendEventAsync(ev);
+
+        // TODO non credo ci sia possibilità di inviare chiudi mic a gruppo, bisogna fare ciclo
+        await _sonbsClient.EnableMicVoiceAsync(new(MessageTarget.BroadcastOpenMicrophones), on: false, default);
+
         _logger.LogInformation("inviato evento All Mics Off");
     }
 
@@ -154,7 +160,14 @@ public sealed partial class FrmSonbsTest : Form
             SeatNumber = selected.Value.Seat.ToString(),
             MicrophoneStatus = TalkMicrophoneStatus.Close,
         };
-        await SendEventAsync(ev);
+        var garavotTask = SendEventAsync(ev);
+
+        var sonbsId = new UnitMessageTarget(
+            selected.Value.SonbsId.Target == UnitIdType.Wired ? MessageTarget.SingleWired : MessageTarget.SingleWireless,
+            selected.Value.SonbsId.Id);
+        var sonbsTask = _sonbsClient.EnableMicVoiceAsync(sonbsId, on: false, default);
+        await garavotTask;
+        await sonbsTask;
     }
 
     private async void cmdSendTalkOn_Click(object __, EventArgs _)
@@ -169,7 +182,15 @@ public sealed partial class FrmSonbsTest : Form
             SeatNumber = selected.Value.Seat.ToString(),
             MicrophoneStatus = TalkMicrophoneStatus.Open,
         };
-        await SendEventAsync(ev);
+        var garavotTask = SendEventAsync(ev);
+
+        var sonbsId = new UnitMessageTarget(
+            selected.Value.SonbsId.Target == UnitIdType.Wired ? MessageTarget.SingleWired : MessageTarget.SingleWireless,
+            selected.Value.SonbsId.Id);
+        var sonbsTask = _sonbsClient.EnableMicVoiceAsync(sonbsId, on: true, default);
+
+        await garavotTask;
+        await sonbsTask;
     }
 
     private async void cmdSendTopic_Click(object __, EventArgs _)
@@ -177,7 +198,7 @@ public sealed partial class FrmSonbsTest : Form
         if (_eventChannel == null) { _logger.LogError("invia topic: rabbit non inizializzato"); return; }
         if (viewOrdini.SelectedItems.Count != 1) { _logger.LogError("topic: selezionare un ordine"); return; }
 
-        var ev = new TopicChangedEto { Account = "ac103", Title = "" };
+        var ev = new TopicChangedEto { Account = GaravotAccount, Title = "" };
         await SendEventAsync(ev);
     }
 
@@ -185,12 +206,27 @@ public sealed partial class FrmSonbsTest : Form
     {
         if (_eventChannel == null) { _logger.LogError("inizia seduta: rabbit non inizializzato"); return; }
 
+        // TODO mi aspettavo ci fosse un ContentId?
+        var ev = new EventStartedEto
+        {
+            Account = GaravotAccount,
+            Legislature = default,
+            Number = "",
+            Title = "",
+        };
+        await SendEventAsync(ev);
     }
 
     private async void cmdSittingStop_Click(object __, EventArgs _)
     {
         if (_eventChannel == null) { _logger.LogError("fine seduta: rabbit non inizializzato"); return; }
-
+        var ev = new EventEndedEto
+        {
+            Account = GaravotAccount,
+            Legislature = default,
+            Number = ""
+        };
+        await SendEventAsync(ev);
     }
 
     private async Task ConnectGaravotAsync()
