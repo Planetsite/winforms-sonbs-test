@@ -19,7 +19,7 @@ namespace SonbsTest;
 // però non penso di poterlo fare tra istanze diverse di rabbit
 // quindi dovrei connettere tutti ad uno stesso rabbit? tipo 205 o demo stesso?
 
-// TODO devo fare un client tipo servizio per keycloak
+// TODO devo fare un client keycloak tipo servizio/confidential per ac114
 
 public sealed partial class FrmSonbsTest : Form
 {
@@ -29,6 +29,7 @@ public sealed partial class FrmSonbsTest : Form
     private IGaravotApi? _garavotApi;
     private GovernmentData? _governmentData;
     private readonly StatusStripLogger _logger;
+    private IConnection? _rabbitmqConnection;
     private Sc6200mhTcpClient? _sonbsClient;
     private ScanResult? _sonbsDevs;
 
@@ -128,10 +129,23 @@ public sealed partial class FrmSonbsTest : Form
         if (_eventChannel == null) { _logger.LogError("chiudi tutti mic: rabbit non inizializzato"); return; }
 
         var ev = new AllMicrophonesOffEto { Account = GaravotAccount };
-        await SendEventAsync(ev);
+        var eventTask = SendEventAsync(ev);
 
-        // TODO non credo ci sia possibilità di inviare chiudi mic a gruppo, bisogna fare ciclo
-        await _sonbsClient.EnableMicVoiceAsync(new(MessageTarget.BroadcastOpenMicrophones), on: false, default);
+        async Task TurnOffAsync()
+        {
+            foreach (var sonbsMic in _sonbsDevs.T31)
+                await _sonbsClient.EnableMicVoiceAsync(
+                    new(
+                        sonbsMic.Id.Target == UnitIdType.Wireless
+                            ? MessageTarget.SingleWireless
+                            : MessageTarget.SingleWired,
+                        sonbsMic.Id.Id),
+                    on: false, default);
+        }
+        var turnoffTask = TurnOffAsync();
+
+        await eventTask;
+        await turnoffTask;
 
         _logger.LogInformation("inviato evento All Mics Off");
     }
@@ -304,9 +318,8 @@ public sealed partial class FrmSonbsTest : Form
             Password = RabbitMqPass,
         };
 
-        // TODO rabbitmqConnection e _eventChannel sono ovviamente long-lived e da fare dispose
-        var rabbitmqConnection = await rabbitmqConnectionFactory.CreateConnectionAsync();
-        _eventChannel = await rabbitmqConnection.CreateChannelAsync();
+        _rabbitmqConnection = await rabbitmqConnectionFactory.CreateConnectionAsync();
+        _eventChannel = await _rabbitmqConnection.CreateChannelAsync();
 
         /// NO QUEUE await _eventChannel.QueueBindAsync("queue", "exchange", "routing");
         //var consumer = new AsyncEventingBasicConsumer(_eventChannel);
@@ -330,6 +343,7 @@ public sealed partial class FrmSonbsTest : Form
     {
         if (_sonbsClient != null) await _sonbsClient.StopAsync();
         if (_eventChannel != null) await _eventChannel.CloseAsync();
+        if (_rabbitmqConnection != null) await _rabbitmqConnection.DisposeAsync();
     }
 
     private static string GetEventRoute<T>(T _)
