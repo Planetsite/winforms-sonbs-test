@@ -206,13 +206,12 @@ public sealed partial class FrmSonbsTest : Form
     {
         if (_eventChannel == null) { _logger.LogError("inizia seduta: rabbit non inizializzato"); return; }
 
-        // TODO mi aspettavo ci fosse un ContentId?
         var ev = new EventStartedEto
         {
             Account = GaravotAccount,
-            Legislature = default,
-            Number = "",
-            Title = "",
+            Legislature = "1",
+            Number = "1",
+            Title = "test",
         };
         await SendEventAsync(ev);
     }
@@ -223,8 +222,8 @@ public sealed partial class FrmSonbsTest : Form
         var ev = new EventEndedEto
         {
             Account = GaravotAccount,
-            Legislature = default,
-            Number = ""
+            Legislature = "1",
+            Number = "1"
         };
         await SendEventAsync(ev);
     }
