@@ -18,7 +18,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.1" />
     <PackageReference Include="Planet.Core" Version="7.7.0" />
     <PackageReference Include="Planet.IntegrationEvents.Domain" Version="7.6.4" />
-    <PackageReference Include="Planet.Sonbs.TcpClient" Version="7.4.1" />
+    <PackageReference Include="Planet.Sonbs.TcpClient" Version="7.5.0" />
     <PackageReference Include="RabbitMQ.Client" Version="7.0.0" />
     <PackageReference Include="Refit" Version="8.0.0" />
   </ItemGroup>
