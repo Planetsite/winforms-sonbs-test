@@ -48,14 +48,14 @@
             colheadTalk = new ColumnHeader();
             viewOrdini = new ListView();
             colheadDescrizione = new ColumnHeader();
-            cmdSittingStart = new Button();
-            cmdSittingStop = new Button();
-            cmdConnectSonbs = new Button();
+            btnSittingStart = new Button();
+            btnSittingStop = new Button();
+            btnConnectSonbs = new Button();
             btnConnectGaravot = new Button();
-            cmdSendTopic = new Button();
-            cmdSendTalkOn = new Button();
-            cmdSendTalkOff = new Button();
-            cmdCloseAllMics = new Button();
+            btnSendTopic = new Button();
+            btnSendTalkOn = new Button();
+            btnSendTalkOff = new Button();
+            btnCloseAllMics = new Button();
             tcDelegates = new TabControl();
             tabSonbs = new TabPage();
             viewSonbs = new ListView();
@@ -239,35 +239,35 @@
             colheadDescrizione.Text = "Ordine del giorno";
             colheadDescrizione.Width = 300;
             // 
-            // cmdSittingStart
+            // btnSittingStart
             // 
-            cmdSittingStart.Location = new Point(18, 444);
-            cmdSittingStart.Name = "cmdSittingStart";
-            cmdSittingStart.Size = new Size(92, 23);
-            cmdSittingStart.TabIndex = 6;
-            cmdSittingStart.Text = "Apri Seduta";
-            cmdSittingStart.UseVisualStyleBackColor = true;
-            cmdSittingStart.Click += cmdSittingStart_Click;
+            btnSittingStart.Location = new Point(18, 444);
+            btnSittingStart.Name = "btnSittingStart";
+            btnSittingStart.Size = new Size(92, 23);
+            btnSittingStart.TabIndex = 6;
+            btnSittingStart.Text = "Apri Seduta";
+            btnSittingStart.UseVisualStyleBackColor = true;
+            btnSittingStart.Click += btnSittingStart_Click;
             // 
-            // cmdSittingStop
+            // btnSittingStop
             // 
-            cmdSittingStop.Location = new Point(116, 444);
-            cmdSittingStop.Name = "cmdSittingStop";
-            cmdSittingStop.Size = new Size(102, 23);
-            cmdSittingStop.TabIndex = 7;
-            cmdSittingStop.Text = "Chiudi Seduta";
-            cmdSittingStop.UseVisualStyleBackColor = true;
-            cmdSittingStop.Click += cmdSittingStop_Click;
+            btnSittingStop.Location = new Point(116, 444);
+            btnSittingStop.Name = "btnSittingStop";
+            btnSittingStop.Size = new Size(102, 23);
+            btnSittingStop.TabIndex = 7;
+            btnSittingStop.Text = "Chiudi Seduta";
+            btnSittingStop.UseVisualStyleBackColor = true;
+            btnSittingStop.Click += btnSittingStop_Click;
             // 
-            // cmdConnectSonbs
+            // btnConnectSonbs
             // 
-            cmdConnectSonbs.Location = new Point(224, 444);
-            cmdConnectSonbs.Name = "cmdConnectSonbs";
-            cmdConnectSonbs.Size = new Size(127, 23);
-            cmdConnectSonbs.TabIndex = 8;
-            cmdConnectSonbs.Text = "Connetti SONBS";
-            cmdConnectSonbs.UseVisualStyleBackColor = true;
-            cmdConnectSonbs.Click += cmdConnectSonbs_Click;
+            btnConnectSonbs.Location = new Point(224, 444);
+            btnConnectSonbs.Name = "btnConnectSonbs";
+            btnConnectSonbs.Size = new Size(127, 23);
+            btnConnectSonbs.TabIndex = 8;
+            btnConnectSonbs.Text = "Connetti SONBS";
+            btnConnectSonbs.UseVisualStyleBackColor = true;
+            btnConnectSonbs.Click += btnConnectSonbs_Click;
             // 
             // btnConnectGaravot
             // 
@@ -279,48 +279,48 @@
             btnConnectGaravot.UseVisualStyleBackColor = true;
             btnConnectGaravot.Click += btnConnectGaravot_Click;
             // 
-            // cmdSendTopic
+            // btnSendTopic
             // 
-            cmdSendTopic.Enabled = false;
-            cmdSendTopic.Location = new Point(592, 444);
-            cmdSendTopic.Name = "cmdSendTopic";
-            cmdSendTopic.Size = new Size(103, 23);
-            cmdSendTopic.TabIndex = 10;
-            cmdSendTopic.Text = "Invia ODG";
-            cmdSendTopic.UseVisualStyleBackColor = true;
-            cmdSendTopic.Click += cmdSendTopic_Click;
+            btnSendTopic.Enabled = false;
+            btnSendTopic.Location = new Point(592, 444);
+            btnSendTopic.Name = "btnSendTopic";
+            btnSendTopic.Size = new Size(103, 23);
+            btnSendTopic.TabIndex = 10;
+            btnSendTopic.Text = "Invia ODG";
+            btnSendTopic.UseVisualStyleBackColor = true;
+            btnSendTopic.Click += btnSendTopic_Click;
             // 
-            // cmdSendTalkOn
+            // btnSendTalkOn
             // 
-            cmdSendTalkOn.Enabled = false;
-            cmdSendTalkOn.Location = new Point(218, 226);
-            cmdSendTalkOn.Name = "cmdSendTalkOn";
-            cmdSendTalkOn.Size = new Size(79, 23);
-            cmdSendTalkOn.TabIndex = 11;
-            cmdSendTalkOn.Text = "Apri parola";
-            cmdSendTalkOn.UseVisualStyleBackColor = true;
-            cmdSendTalkOn.Click += cmdSendTalkOn_Click;
+            btnSendTalkOn.Enabled = false;
+            btnSendTalkOn.Location = new Point(218, 226);
+            btnSendTalkOn.Name = "btnSendTalkOn";
+            btnSendTalkOn.Size = new Size(79, 23);
+            btnSendTalkOn.TabIndex = 11;
+            btnSendTalkOn.Text = "Apri parola";
+            btnSendTalkOn.UseVisualStyleBackColor = true;
+            btnSendTalkOn.Click += btnSendTalkOn_Click;
             // 
-            // cmdSendTalkOff
+            // btnSendTalkOff
             // 
-            cmdSendTalkOff.Enabled = false;
-            cmdSendTalkOff.Location = new Point(303, 226);
-            cmdSendTalkOff.Name = "cmdSendTalkOff";
-            cmdSendTalkOff.Size = new Size(87, 23);
-            cmdSendTalkOff.TabIndex = 12;
-            cmdSendTalkOff.Text = "Chiudi parola";
-            cmdSendTalkOff.UseVisualStyleBackColor = true;
-            cmdSendTalkOff.Click += cmdSendTalkOff_Click;
+            btnSendTalkOff.Enabled = false;
+            btnSendTalkOff.Location = new Point(303, 226);
+            btnSendTalkOff.Name = "btnSendTalkOff";
+            btnSendTalkOff.Size = new Size(87, 23);
+            btnSendTalkOff.TabIndex = 12;
+            btnSendTalkOff.Text = "Chiudi parola";
+            btnSendTalkOff.UseVisualStyleBackColor = true;
+            btnSendTalkOff.Click += btnSendTalkOff_Click;
             // 
-            // cmdCloseAllMics
+            // btnCloseAllMics
             // 
-            cmdCloseAllMics.Location = new Point(396, 226);
-            cmdCloseAllMics.Name = "cmdCloseAllMics";
-            cmdCloseAllMics.Size = new Size(108, 23);
-            cmdCloseAllMics.TabIndex = 13;
-            cmdCloseAllMics.Text = "Chiudi microfoni";
-            cmdCloseAllMics.UseVisualStyleBackColor = true;
-            cmdCloseAllMics.Click += cmdCloseAllMics_Click;
+            btnCloseAllMics.Location = new Point(396, 226);
+            btnCloseAllMics.Name = "btnCloseAllMics";
+            btnCloseAllMics.Size = new Size(108, 23);
+            btnCloseAllMics.TabIndex = 13;
+            btnCloseAllMics.Text = "Chiudi microfoni";
+            btnCloseAllMics.UseVisualStyleBackColor = true;
+            btnCloseAllMics.Click += btnCloseAllMics_Click;
             // 
             // tcDelegates
             // 
@@ -434,14 +434,14 @@
             Controls.Add(btnRefuteTalkRequest);
             Controls.Add(btnConfirmTalkRequest);
             Controls.Add(tcDelegates);
-            Controls.Add(cmdCloseAllMics);
-            Controls.Add(cmdSendTalkOff);
-            Controls.Add(cmdSendTalkOn);
-            Controls.Add(cmdSendTopic);
+            Controls.Add(btnCloseAllMics);
+            Controls.Add(btnSendTalkOff);
+            Controls.Add(btnSendTalkOn);
+            Controls.Add(btnSendTopic);
             Controls.Add(btnConnectGaravot);
-            Controls.Add(cmdConnectSonbs);
-            Controls.Add(cmdSittingStop);
-            Controls.Add(cmdSittingStart);
+            Controls.Add(btnConnectSonbs);
+            Controls.Add(btnSittingStop);
+            Controls.Add(btnSittingStart);
             Controls.Add(viewOrdini);
             Controls.Add(groupVotazione);
             Controls.Add(groupSignIn);
@@ -483,16 +483,16 @@
         private ColumnHeader colheadSurname;
         private ColumnHeader colheadGruppo;
         private ColumnHeader colheadDescrizione;
-        private Button cmdSittingStart;
-        private Button cmdSittingStop;
-        private Button cmdConnectSonbs;
+        private Button btnSittingStart;
+        private Button btnSittingStop;
+        private Button btnConnectSonbs;
         private ColumnHeader colheadSeat;
         private Button btnConnectGaravot;
-        private Button cmdSendTopic;
-        private Button cmdSendTalkOn;
+        private Button btnSendTopic;
+        private Button btnSendTalkOn;
         private ColumnHeader colheadTalk;
-        private Button cmdSendTalkOff;
-        private Button cmdCloseAllMics;
+        private Button btnSendTalkOff;
+        private Button btnCloseAllMics;
         private TabControl tcDelegates;
         private TabPage tabSonbs;
         private TabPage tabGaravot;

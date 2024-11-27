@@ -102,7 +102,7 @@ public sealed partial class FrmSonbsTest : Form
         // TODO stato: in votazione
     }
 
-    private async void cmdCloseAllMics_Click(object __, EventArgs _)
+    private async void btnCloseAllMics_Click(object __, EventArgs _)
     {
         if (_sonbsClient == null) { _logger.LogError("chiudi tutti mic: sonbs non inizializzato"); return; }
         if (_eventChannel == null) { _logger.LogError("chiudi tutti mic: rabbit non inizializzato"); return; }
@@ -129,7 +129,7 @@ public sealed partial class FrmSonbsTest : Form
         _logger.LogInformation("inviato evento All Mics Off");
     }
 
-    private async void cmdConnectSonbs_Click(object __, EventArgs _)
+    private async void btnConnectSonbs_Click(object __, EventArgs _)
     {
         await ConnectSonbsAsync();
 
@@ -139,7 +139,7 @@ public sealed partial class FrmSonbsTest : Form
             viewSonbs.Items.Add(new ListViewItem([dev.Id.Id.ToString(), dev.Id.Target.ToString(), dev.IsChairman.ToString(), dev.MicState.ToString()]));
     }
 
-    private async void cmdSendTalkOff_Click(object __, EventArgs _)
+    private async void btnSendTalkOff_Click(object __, EventArgs _)
     {
         if (_sonbsClient == null) { _logger.LogError("chiudi parola: sonbs non inizializzato"); return; }
         if (_eventChannel == null) { _logger.LogError("chiudi parola: rabbit non inizializzato"); return; }
@@ -165,7 +165,7 @@ public sealed partial class FrmSonbsTest : Form
         await sonbsTask;
     }
 
-    private async void cmdSendTalkOn_Click(object __, EventArgs _)
+    private async void btnSendTalkOn_Click(object __, EventArgs _)
     {
         if (_sonbsClient == null) { _logger.LogError("apri parola: sonbs non inizializzato"); return; }
         if (_eventChannel == null) { _logger.LogError("apri parola: rabbit non inizializzato"); return; }
@@ -191,7 +191,7 @@ public sealed partial class FrmSonbsTest : Form
         await sonbsTask;
     }
 
-    private async void cmdSendTopic_Click(object __, EventArgs _)
+    private async void btnSendTopic_Click(object __, EventArgs _)
     {
         if (_eventChannel == null) { _logger.LogError("invia topic: rabbit non inizializzato"); return; }
         if (viewOrdini.SelectedItems.Count != 1) { _logger.LogError("topic: selezionare un ordine"); return; }
@@ -200,7 +200,7 @@ public sealed partial class FrmSonbsTest : Form
         await SendEventAsync(ev);
     }
 
-    private async void cmdSittingStart_Click(object __, EventArgs _)
+    private async void btnSittingStart_Click(object __, EventArgs _)
     {
         if (_eventChannel == null) { _logger.LogError("inizia seduta: rabbit non inizializzato"); return; }
 
@@ -214,7 +214,7 @@ public sealed partial class FrmSonbsTest : Form
         await SendEventAsync(ev);
     }
 
-    private async void cmdSittingStop_Click(object __, EventArgs _)
+    private async void btnSittingStop_Click(object __, EventArgs _)
     {
         if (_eventChannel == null) { _logger.LogError("fine seduta: rabbit non inizializzato"); return; }
         var ev = new EventEndedEto
@@ -427,7 +427,7 @@ public sealed partial class FrmSonbsTest : Form
 
     private void viewOrdini_SelectedIndexChanged(object __, EventArgs _)
     {
-        cmdSendTopic.Enabled = viewOrdini.SelectedItems.Count == 1;
+        btnSendTopic.Enabled = viewOrdini.SelectedItems.Count == 1;
     }
 
     const string GaravotAccount = "ac114";
