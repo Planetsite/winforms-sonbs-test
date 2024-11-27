@@ -11,16 +11,6 @@ using System.Text.Json;
 
 namespace SonbsTest;
 
-// TODO try-catch
-
-// architettura
-// dovremmo quindi avere rabbit che invia eventi metadati sia a garavot che director?
-// che significa avere exchange direct con bindate queue garavot + queue director con routing key stessi eventi
-// però non penso di poterlo fare tra istanze diverse di rabbit
-// quindi dovrei connettere tutti ad uno stesso rabbit? tipo 205 o demo stesso?
-
-// TODO devo fare un client keycloak tipo servizio/confidential per ac114
-
 public sealed partial class FrmSonbsTest : Form
 {
     private AnagraficheData? _anagrafiche;
@@ -302,16 +292,12 @@ public sealed partial class FrmSonbsTest : Form
 
                 var delegateGroupQuery = delegateGroupsResponse.Content.Data.Items.Where(_ => deleg.DelegateGroupIds.Contains(_.DelegateGroupId));
                 if (delegateGroupQuery.Any() == false) continue;
-                var delegateGroup = delegateGroupQuery.First().Acronym;
+                var delegateGroup = delegateGroupQuery.First().Name;
 
-                // non c'è seat/card da api quindi prendo sonbs
-                var micData = delegatesMic.Where(_ => _.GaravotId == deleg.DelegateId);
-                var micFirst = micData.FirstOrDefault();
-                var micId = micData.Any()
-                    ? micFirst.SonbsId.Id.ToString() + (micFirst.SonbsId.Target == UnitIdType.Wireless ? 'W' : 'C')
-                    : " ";
+                var seat = seats.Content.Data.Items.FirstOrDefault(_ => _.CurrentSpeakerId == deleg.DelegateId)?.Number
+                    ?? "-";
 
-                var added = viewDelegates.Items.Add(new ListViewItem([deleg.FirstName, deleg.LastName, delegateGroup, micId, "-"]));
+                var added = viewDelegates.Items.Add(new ListViewItem([deleg.FirstName, deleg.LastName, delegateGroup, seat, "-"]));
                 viewToGaravot.Add((deleg.DelegateId, added.IndentCount));
             }
 
@@ -464,3 +450,16 @@ file static class FrmSonbsTestExtensions
     public static short TabSonbsGetId(this ListViewItem i) => short.Parse(i.SubItems[0].Text);
     public static void TabSonbsSetIsOpen(this ListViewItem i, bool isOpen) => i.SubItems[3].Text = isOpen.ToString();
 }
+
+// TODO try-catch
+
+// architettura
+// dovremmo quindi avere rabbit che invia eventi metadati sia a garavot che director?
+// che significa avere exchange direct con bindate queue garavot + queue director con routing key stessi eventi
+// però non penso di poterlo fare tra istanze diverse di rabbit
+// quindi dovrei connettere tutti ad uno stesso rabbit? tipo 205 o demo stesso?
+
+// TODO devo fare un client keycloak tipo servizio/confidential per ac114
+
+// TODO pulsanti microfoni dovrebbero essere abilitati solo se app è connessa?
+// al momento chiudi tutti è on di default
