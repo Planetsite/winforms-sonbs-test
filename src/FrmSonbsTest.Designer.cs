@@ -212,7 +212,7 @@
             // 
             // colheadSeat
             // 
-            colheadSeat.Text = "Mic#";
+            colheadSeat.Text = "Seat";
             colheadSeat.Width = 40;
             // 
             // colheadTalk

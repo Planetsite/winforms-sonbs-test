@@ -9,16 +9,22 @@ namespace SonbsTest;
 public interface IGaravotApi
 {
     // no auth
-    [Get("/api/v1/delegates/get_all_frontend")]
-    Task<ApiResponse<SearchResponse<DelegateFeDto>>> GetDelegatesAsync(CancellationToken cancellation = default);
+    [Get("/api/v1/delegategroups/get_all_frontend")]
+    Task<ApiResponse<SearchResponse<DelegateGroupFeDto>>> GetAllDelegateGroupsAsync(CancellationToken cancellation = default);
 
     // no auth
-    [Get("/api/v1/delegategroups/get_all_frontend")]
-    Task<ApiResponse<SearchResponse<DelegateGroupFeDto>>> GetDelegateGroupsAsync(CancellationToken cancellation = default);
+    [Get("/api/v1/delegates/get_all_frontend")]
+    Task<ApiResponse<SearchResponse<DelegateFeDto>>> GetAllDelegatesAsync(CancellationToken cancellation = default);
 
     // auth
     [Post("/api/v1/delegategroupdelegates/search")]
-    Task<ApiResponse<SearchResponse<GovernmentBodyDelegateDto>>> GetDelegateGroupDelegatesAsync(DelegateGroupDelegateSearchRequest request, CancellationToken cancellation = default);
+    Task<ApiResponse<SearchResponse<GovernmentBodyDelegateDto>>> SearchDelegateGroupDelegatesAsync(
+        DelegateGroupDelegateSearchRequest request, CancellationToken cancellation = default);
+
+    // auth
+    [Post("/api/v1/seats/search")]
+    Task<ApiResponse<SearchResponse<SeatDto>>> SearchSeatsAsync(
+        [Body] SeatSearchRequest request, CancellationToken cancellation = default);
 }
 
 public static class GaravotApiFactory
@@ -73,7 +79,7 @@ public class AbpAudited
     public DateTime CreationTime { get; set; }
     public Guid? CreatorId { get; set; }
 }
-public sealed class DelegateDto : AbpAudited
+public sealed class DelegateDto : PersonDto
 {
     public string DelegateCardNumber { get; set; }
     public bool DelegateCanBeDeleted { get; set; }
@@ -82,6 +88,9 @@ public sealed class DelegateDto : AbpAudited
     public string DelegateKey { get; set; }
     public DelegateType DelegateType { get; set; }
     public bool DelegateIsSynchronized { get; set; }
+}
+public class PersonDto : AbpAudited
+{
     public string Address { get; set; }
     public bool Adult { get; set; } = true;
     public string Biography { get; set; }
@@ -236,4 +245,62 @@ public class UserInfo
     public string LastName { get; set; }
     public string Email { get; set; }
     public string Username { get; set; }
+}
+public sealed class SeatSearchRequest : SearchRequest<SeatSearchFilters, SeatSortField>
+{
+}
+public sealed class SeatSearchFilters : SearchFilters
+{
+    public int? VenueId { get; set; }
+}
+public enum SeatSortField : short
+{
+    Description,
+    InsertDate,
+    Number,
+}
+public sealed class SeatDto : AbpAudited
+{
+    public float ColumnPosition { get; set; }
+    public PersonDto CurrentSpeaker { get; set; }
+    public string CurrentSpeakerCardNumber { get; set; }
+    public string CurrentSpeakerGroupAcronym { get; set; }
+    public string CurrentSpeakerGroupImage { get; set; }
+    public string CurrentSpeakerGroupName { get; set; }
+    public string CurrentSpeakerGroupRole { get; set; }
+    public long? CurrentSpeakerId { get; set; }
+    public string CurrentSpeakerImage { get; set; }
+    public string CurrentSpeakerName { get; set; }
+    public string Description { get; set; }
+    public string Number { get; set; }
+    public float RowPosition { get; set; }
+    public int SeatId { get; set; }
+    public VenueDto Venue { get; set; }
+    public int VenueId { get; set; }
+}
+public sealed class VenueDto : AbpAudited
+{
+    public string Address { get; set; }
+    public string Description { get; set; }
+    public string Name { get; set; }
+    public string TimeZoneName { get; set; }
+    public GaravotTimeZone TimeZoneInfo { get; set; }
+    public int VenueId { get; set; }
+    public VenueType VenueType { get; set; }
+}
+public enum VenueType
+{
+    Room = 0,
+    CouncilMeetingRoom = 1,
+    BoardMeetingRoom = 2,
+    Stadium = 3,
+}
+public sealed class GaravotTimeZone
+{
+    public TimeSpan BaseUtcOffset { get; set; }
+    public string DaylightName { get; set; }
+    public string DisplayName { get; set; }
+    public string IanaId { get; set; }
+    public string StandardName { get; set; }
+    public string WindowsId { get; set; }
 }

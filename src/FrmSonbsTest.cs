@@ -23,11 +23,10 @@ namespace SonbsTest;
 
 public sealed partial class FrmSonbsTest : Form
 {
+    private AnagraficheData? _anagrafiche;
     private readonly IConfigurationRoot _config;
-    private readonly SonbsToGaravot[] _delegatesMic;
     private IChannel? _eventChannel;
     private IGaravotApi? _garavotApi;
-    private GovernmentData? _governmentData;
     private readonly StatusStripLogger _logger;
     private IConnection? _rabbitmqConnection;
     private Sc6200mhTcpClient? _sonbsClient;
@@ -40,16 +39,6 @@ public sealed partial class FrmSonbsTest : Form
         _logger = new StatusStripLogger(tslLog);
         cmbVotazioneTipi.SelectedIndex = 0;
         _logger.LogInformation("Ready");
-
-        // TEMP
-        _delegatesMic = new[]
-        {
-            new SonbsToGaravot(17, new RecvMessageId(1, UnitIdType.Wireless)), // pieropan
-            new SonbsToGaravot(23, new RecvMessageId(2, UnitIdType.Wireless)), // turrini
-            new SonbsToGaravot(137, new RecvMessageId(1, UnitIdType.Wired)), // de santis, presidente
-            new SonbsToGaravot(29, new RecvMessageId(2, UnitIdType.Wired)), // castellini
-            new SonbsToGaravot(35, new RecvMessageId(3, UnitIdType.Wired)), // costantino
-        };
     }
 
     private void btnConfirmTalkRequest_Click(object __, EventArgs _)
@@ -91,21 +80,21 @@ public sealed partial class FrmSonbsTest : Form
     {
         // TODO non posso stoppare una votazione se non è cominciata
         if (_sonbsClient == null) { _logger.LogError("votazione: sonbs non inizializzato"); return; }
-        if (_governmentData == null) { _logger.LogError("votazione: garavot non inizializzato"); return; }
+        if (_anagrafiche == null) { _logger.LogError("votazione: garavot non inizializzato"); return; }
 
         var voti = await _sonbsClient.StopVotingAsync();
         _logger.LogInformation($"votazione terminata: {voti} voti");
         viewVoteResult.Items.Clear();
         foreach (var voto in voti)
         {
-            var delegateMicWhere = _delegatesMic.Where(_ => _.SonbsId == voto.MicId);
+            var delegateMicWhere = _anagrafiche.DelegatesMic.Where(_ => _.SonbsId == voto.MicId);
             if (delegateMicWhere.Any() == false)
             {
                 _logger.LogWarning($"voto non associato a delegate: {voto.MicId}");
                 continue;
             }
             var delegateMic = delegateMicWhere.First();
-            var dlgt = _governmentData.Delegates.Where(_ => _.DelegateId == delegateMic.GaravotId).First();
+            var dlgt = _anagrafiche.Delegates.Where(_ => _.DelegateId == delegateMic.GaravotId).First();
             viewVoteResult.Items.Add(new ListViewItem([$"{dlgt.FirstName} {dlgt.LastName}", ((int)voto.Vote).ToString()]));
         }
     }
@@ -115,7 +104,7 @@ public sealed partial class FrmSonbsTest : Form
     {
         if (cmbVotazioneTipi.SelectedItem == null) { _logger.LogError("inizia votazione: nessuna votazione selezionata"); return; }
         if (_sonbsClient == null) { _logger.LogError("inizia votazione: sonbs non inizializzato"); return; }
-        if (_governmentData == null) { _logger.LogError("inizia votazione: garavot non inizializzato"); return; }
+        if (_anagrafiche == null) { _logger.LogError("inizia votazione: garavot non inizializzato"); return; }
 
         var mode = Enum.Parse<VotingMode>((string)cmbVotazioneTipi.SelectedItem);
         await _sonbsClient.StartVoting2Async(mode, default);
@@ -164,14 +153,16 @@ public sealed partial class FrmSonbsTest : Form
     {
         if (_sonbsClient == null) { _logger.LogError("chiudi parola: sonbs non inizializzato"); return; }
         if (_eventChannel == null) { _logger.LogError("chiudi parola: rabbit non inizializzato"); return; }
+        if (_anagrafiche == null) { _logger.LogError("chiudi parola: garavot non inizializzato"); return; }
 
         var selected = GetIdFromDelegatesTab();
         if (selected == null) return;
 
+        var seat = _anagrafiche.Seats.Where(_ => _.CurrentSpeakerId == selected.Value.GaravotId).First();
         var ev = new TalkStartedEto
         {
             Account = GaravotAccount,
-            SeatNumber = selected.Value.Seat.ToString(),
+            SeatNumber = seat.Number,
             MicrophoneStatus = TalkMicrophoneStatus.Close,
         };
         var garavotTask = SendEventAsync(ev);
@@ -190,10 +181,13 @@ public sealed partial class FrmSonbsTest : Form
         if (_eventChannel == null) { _logger.LogError("apri parola: rabbit non inizializzato"); return; }
 
         var selected = GetIdFromDelegatesTab();
+        if (selected == null) return;
+
+        var seat = _anagrafiche.Seats.First(_ => _.CurrentSpeakerId == selected.Value.GaravotId);
         var ev = new TalkStartedEto
         {
             Account = GaravotAccount,
-            SeatNumber = selected.Value.Seat.ToString(),
+            SeatNumber = seat.Number,
             MicrophoneStatus = TalkMicrophoneStatus.Open,
         };
         var garavotTask = SendEventAsync(ev);
@@ -265,10 +259,20 @@ public sealed partial class FrmSonbsTest : Form
             ghc.BaseAddress = new(GaravotApiUri);
             ghc.SetBearerToken(accessToken);
 
+            // TEMP
+            var delegatesMic = new[]
+            {
+                new SonbsToGaravot(17, new RecvMessageId(1, UnitIdType.Wireless)), // pieropan
+                new SonbsToGaravot(23, new RecvMessageId(2, UnitIdType.Wireless)), // turrini
+                new SonbsToGaravot(137, new RecvMessageId(1, UnitIdType.Wired)), // de santis, presidente
+                new SonbsToGaravot(29, new RecvMessageId(2, UnitIdType.Wired)), // castellini
+                new SonbsToGaravot(35, new RecvMessageId(3, UnitIdType.Wired)), // costantino
+            };
+
             _garavotApi = GaravotApiFactory.Create(ghc);
-            var delegateResponse = await _garavotApi.GetDelegatesAsync();
-            var delegateGroupsResponse = await _garavotApi.GetDelegateGroupsAsync();
-            var delegateGroupDelegatesResponse = await _garavotApi.GetDelegateGroupDelegatesAsync(new DelegateGroupDelegateSearchRequest
+            var delegateResponse = await _garavotApi.GetAllDelegatesAsync();
+            var delegateGroupsResponse = await _garavotApi.GetAllDelegateGroupsAsync();
+            var delegateGroupDelegatesResponse = await _garavotApi.SearchDelegateGroupDelegatesAsync(new DelegateGroupDelegateSearchRequest
             {
                 Page = 1,
                 PageSize = short.MaxValue,
@@ -276,9 +280,16 @@ public sealed partial class FrmSonbsTest : Form
                     Direction = SortDirection.Ascending,
                     SortField = DelegateGroupDelegateSortField.Start }]
             });
-            _governmentData = new GovernmentData(delegateResponse.Content.Data.Items, delegateGroupsResponse.Content.Data.Items,
-                delegateGroupDelegatesResponse.Content.Data.Items);
+            var seats = await _garavotApi.SearchSeatsAsync(new()
+            {
+                Page = 1,
+                PageSize = short.MaxValue,
+                SortBy = [new SortCriteria<SeatSortField> {
+                    Direction = SortDirection.Ascending,
+                    SortField = SeatSortField.Number }]
+            });
 
+            var viewToGaravot = new List<(long, int)>();
             foreach (var deleg in delegateResponse.Content.Data.Items)
             {
                 //var firstDgd = delegateGroupDelegatesResponse.Content.Data.Items
@@ -294,14 +305,18 @@ public sealed partial class FrmSonbsTest : Form
                 var delegateGroup = delegateGroupQuery.First().Acronym;
 
                 // non c'è seat/card da api quindi prendo sonbs
-                var micData = _delegatesMic.Where(_ => _.GaravotId == deleg.DelegateId);
+                var micData = delegatesMic.Where(_ => _.GaravotId == deleg.DelegateId);
                 var micFirst = micData.FirstOrDefault();
                 var micId = micData.Any()
                     ? micFirst.SonbsId.Id.ToString() + (micFirst.SonbsId.Target == UnitIdType.Wireless ? 'W' : 'C')
                     : " ";
 
-                viewDelegates.Items.Add(new ListViewItem([deleg.FirstName, deleg.LastName, delegateGroup, micId, "-"]));
+                var added = viewDelegates.Items.Add(new ListViewItem([deleg.FirstName, deleg.LastName, delegateGroup, micId, "-"]));
+                viewToGaravot.Add((deleg.DelegateId, added.IndentCount));
             }
+
+            _anagrafiche = new AnagraficheData(delegateResponse.Content.Data.Items, delegateGroupsResponse.Content.Data.Items,
+                delegateGroupDelegatesResponse.Content.Data.Items, delegatesMic, seats.Content.Data.Items, viewToGaravot);
         }
         catch (Exception garavotErr)
         {
@@ -339,7 +354,7 @@ public sealed partial class FrmSonbsTest : Form
         _logger.LogInformation("sonbs connesso");
     }
 
-    private async void FrmSonbsTest_FormClosingAsync(object sender, FormClosingEventArgs e)
+    private async void FrmSonbsTest_FormClosingAsync(object sender, FormClosingEventArgs _)
     {
         if (_sonbsClient != null) await _sonbsClient.StopAsync();
         if (_eventChannel != null) await _eventChannel.CloseAsync();
@@ -350,23 +365,29 @@ public sealed partial class FrmSonbsTest : Form
         => typeof(T).FullName
             ?? throw new System.Diagnostics.UnreachableException();
 
-    private (int Seat, RecvMessageId SonbsId)? GetIdFromDelegatesTab()
+    private (long GaravotId, RecvMessageId SonbsId)? GetIdFromDelegatesTab()
     {
-        if (tcDelegates.SelectedIndex == 0)
+        const int SonbsTabId = 0;
+        const int GaravotTabId = 1;
+
+        switch (tcDelegates.SelectedIndex)
         {
-            if (viewSonbs.SelectedItems.Count != 1) { _logger.LogError("selezionare un microfono"); return null; }
-            var micId = new RecvMessageId(
-                viewSonbs.SelectedItems[0].TabSonbsGetId(),
-                viewSonbs.SelectedItems[0].TabSonbsGetConnection());
-            var seat = _delegatesMic.Where(_ => _.SonbsId == micId).First();
-            return (seat.GaravotId, micId);
-        }
-        else
-        {
-            if (viewDelegates.SelectedItems.Count != 1) { _logger.LogError("selezionare un delegato"); return null; }
-            var seat = viewDelegates.SelectedItems[0].TabDelegatesGetSeat();
-            var micId = _delegatesMic.Where(_ => _.GaravotId == seat).First();
-            return (seat, micId.SonbsId);
+            case SonbsTabId:
+                if (viewSonbs.SelectedItems.Count != 1) { _logger.LogError("selezionare un microfono"); return null; }
+                var micId = new RecvMessageId(
+                    viewSonbs.SelectedItems[0].TabSonbsGetId(),
+                    viewSonbs.SelectedItems[0].TabSonbsGetConnection());
+                var delegateMic = _anagrafiche.DelegatesMic.Where(_ => _.SonbsId == micId).First();
+                return (delegateMic.GaravotId, micId);
+
+            case GaravotTabId:
+                if (viewDelegates.SelectedItems.Count != 1) { _logger.LogError("selezionare un delegato"); return null; }
+                var viewToGaravot = _anagrafiche!.ViewGaravotToGaravotId.First(_ => _.Index == viewDelegates.SelectedIndices[0]);
+                var micId2 = _anagrafiche.DelegatesMic.Where(_ => _.GaravotId == viewToGaravot.GaravotId).First();
+                return (viewToGaravot.GaravotId, micId2.SonbsId);
+
+            default:
+                throw new System.Diagnostics.UnreachableException();
         }
     }
 
@@ -401,12 +422,15 @@ public sealed partial class FrmSonbsTest : Form
         // invia evento a rabbit
         if (_eventChannel == null) return;
 
+        var foundDelegate = _anagrafiche.DelegatesMic.FirstOrDefault(_ => _.SonbsId == eventData.MicId);
+        var seat = _anagrafiche.Seats.FirstOrDefault(_ => _.CurrentSpeakerId == foundDelegate.GaravotId);
         var ev = new TalkStartedEto
         {
             Account = GaravotAccount,
-            SeatNumber = "",
+            SeatNumber = foundDelegate.GaravotId.ToString(),
             MicrophoneStatus = eventData.IsOpen ? TalkMicrophoneStatus.Open : TalkMicrophoneStatus.Close,
         };
+        await SendEventAsync(ev);
     }
 
     private async Task SonbsPowerEmittedAsync(Planet.Devices.Power.PowerStatus status)
@@ -423,12 +447,15 @@ public sealed partial class FrmSonbsTest : Form
     const string GaravotAccount = "ac114";
 }
 
-sealed record GovernmentData(
+sealed record AnagraficheData(
     IEnumerable<DelegateFeDto> Delegates,
     IEnumerable<DelegateGroupFeDto> DelegateGroups,
-    IEnumerable<GovernmentBodyDelegateDto> DelegateGroupDelegates);
+    IEnumerable<GovernmentBodyDelegateDto> DelegateGroupDelegates,
+    SonbsToGaravot[] DelegatesMic,
+    IEnumerable<SeatDto> Seats,
+    ICollection<(long GaravotId, int Index)> ViewGaravotToGaravotId);
 
-record struct SonbsToGaravot(int GaravotId, RecvMessageId SonbsId);
+record struct SonbsToGaravot(long GaravotId, RecvMessageId SonbsId);
 
 file static class FrmSonbsTestExtensions
 {
