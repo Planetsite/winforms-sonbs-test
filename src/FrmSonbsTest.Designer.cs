@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmSonbsTest));
             btnSignInStart = new Button();
             btnSignInEnd = new Button();
@@ -68,12 +69,15 @@
             btnRefuteTalkRequest = new Button();
             ssLog = new StatusStrip();
             tslLog = new ToolStripStatusLabel();
+            cmsOdg = new ContextMenuStrip(components);
+            cmsMenuAddOdg = new ToolStripMenuItem();
             groupSignIn.SuspendLayout();
             groupVotazione.SuspendLayout();
             tcDelegates.SuspendLayout();
             tabSonbs.SuspendLayout();
             tabGaravot.SuspendLayout();
             ssLog.SuspendLayout();
+            cmsOdg.SuspendLayout();
             SuspendLayout();
             // 
             // btnSignInStart
@@ -223,6 +227,7 @@
             // viewOrdini
             // 
             viewOrdini.Columns.AddRange(new ColumnHeader[] { colheadDescrizione });
+            viewOrdini.ContextMenuStrip = cmsOdg;
             viewOrdini.FullRowSelect = true;
             viewOrdini.GridLines = true;
             viewOrdini.Location = new Point(218, 255);
@@ -233,6 +238,7 @@
             viewOrdini.UseCompatibleStateImageBehavior = false;
             viewOrdini.View = View.Details;
             viewOrdini.SelectedIndexChanged += viewOrdini_SelectedIndexChanged;
+            viewOrdini.DoubleClick += viewOrdini_DoubleClick;
             // 
             // colheadDescrizione
             // 
@@ -425,6 +431,19 @@
             tslLog.Name = "tslLog";
             tslLog.Size = new Size(0, 17);
             // 
+            // cmsOdg
+            // 
+            cmsOdg.Items.AddRange(new ToolStripItem[] { cmsMenuAddOdg });
+            cmsOdg.Name = "cmsOdg";
+            cmsOdg.Size = new Size(150, 26);
+            // 
+            // cmsMenuAddOdg
+            // 
+            cmsMenuAddOdg.Name = "cmsMenuAddOdg";
+            cmsMenuAddOdg.Size = new Size(149, 22);
+            cmsMenuAddOdg.Text = "Aggiungi Odg";
+            cmsMenuAddOdg.Click += cmsMenuAddOdg_Click;
+            // 
             // FrmSonbsTest
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -460,6 +479,7 @@
             tabGaravot.ResumeLayout(false);
             ssLog.ResumeLayout(false);
             ssLog.PerformLayout();
+            cmsOdg.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -505,5 +525,7 @@
         private Button btnRefuteTalkRequest;
         private StatusStrip ssLog;
         private ToolStripStatusLabel tslLog;
+        private ContextMenuStrip cmsOdg;
+        private ToolStripMenuItem cmsMenuAddOdg;
     }
 }

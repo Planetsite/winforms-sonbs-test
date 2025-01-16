@@ -63,7 +63,7 @@ public sealed partial class FrmSonbsTest : Form
         // TODO meccanismo stop? potrei fare pulsante signin a doppio stato?
         // ma poi cosa me ne faccio dei risultati, li tengo internamente? li mostro?
         // devo dis/attivare votazione? potrei precaricare view risultati
-        var x = await _sonbsClient.WaitSignInAsync(_sonbsDevs.T31.Count, default);
+        var x = await _sonbsClient.WaitSignInAsync(_sonbsDevs.T31.Count, cancellation: default);
         // TODO QUESTO CORRISPONDE AD UNO STATO? devo bloccare operazioni finché non finisce
     }
 
@@ -98,7 +98,7 @@ public sealed partial class FrmSonbsTest : Form
         if (_anagrafiche == null) { _logger.LogError("inizia votazione: garavot non inizializzato"); return; }
 
         var mode = Enum.Parse<VotingMode>((string)cmbVotazioneTipi.SelectedItem);
-        await _sonbsClient.StartVoting2Async(mode, default);
+        await _sonbsClient.StartVoting2Async(mode, cancellation: default);
         _logger.LogInformation($"votazione {mode} avviata");
         // TODO stato: in votazione
     }
@@ -115,12 +115,13 @@ public sealed partial class FrmSonbsTest : Form
         {
             foreach (var sonbsMic in _sonbsDevs.T31)
                 await _sonbsClient.EnableMicVoiceAsync(
-                    new(
+                    micId: new UnitMessageTarget(
                         sonbsMic.Id.Target == UnitIdType.Wireless
                             ? MessageTarget.SingleWireless
                             : MessageTarget.SingleWired,
                         sonbsMic.Id.Id),
-                    on: false, default);
+                    on: false,
+                    cancellation: default);
         }
         var turnoffTask = TurnOffAsync();
 
@@ -161,7 +162,7 @@ public sealed partial class FrmSonbsTest : Form
         var sonbsId = new UnitMessageTarget(
             selected.Value.SonbsId.Target == UnitIdType.Wired ? MessageTarget.SingleWired : MessageTarget.SingleWireless,
             selected.Value.SonbsId.Id);
-        var sonbsTask = _sonbsClient.EnableMicVoiceAsync(sonbsId, on: false, default);
+        var sonbsTask = _sonbsClient.EnableMicVoiceAsync(sonbsId, on: false, cancellation: default);
         await garavotTask;
         await sonbsTask;
     }
@@ -186,7 +187,7 @@ public sealed partial class FrmSonbsTest : Form
         var sonbsId = new UnitMessageTarget(
             selected.Value.SonbsId.Target == UnitIdType.Wired ? MessageTarget.SingleWired : MessageTarget.SingleWireless,
             selected.Value.SonbsId.Id);
-        var sonbsTask = _sonbsClient.EnableMicVoiceAsync(sonbsId, on: true, default);
+        var sonbsTask = _sonbsClient.EnableMicVoiceAsync(sonbsId, on: true, cancellation: default);
 
         await garavotTask;
         await sonbsTask;
@@ -197,7 +198,8 @@ public sealed partial class FrmSonbsTest : Form
         if (_eventChannel == null) { _logger.LogError("invia topic: rabbit non inizializzato"); return; }
         if (viewOrdini.SelectedItems.Count != 1) { _logger.LogError("topic: selezionare un ordine"); return; }
 
-        var ev = new TopicChangedEto { Account = GaravotAccount, Title = "" };
+        var odg = viewOrdini.SelectedItems[0].SubItems[0].Text;
+        var ev = new TopicChangedEto { Account = GaravotAccount, Title = odg };
         await SendEventAsync(ev);
     }
 
@@ -432,6 +434,20 @@ public sealed partial class FrmSonbsTest : Form
     }
 
     const string GaravotAccount = "ac114";
+
+    private void viewOrdini_DoubleClick(object _, EventArgs __)
+    {
+        var odg = viewOrdini.SelectedItems[0].SubItems[0].Text;
+        var editedOdg = Microsoft.VisualBasic.Interaction.InputBox("Modifica ordine del giorno", "edita ordine del giorno", odg);
+        if (string.IsNullOrEmpty(editedOdg)) return;
+        viewOrdini.SelectedItems[0].SubItems[0].Text = editedOdg;
+    }
+
+    private void cmsMenuAddOdg_Click(object _, EventArgs __)
+    {
+        var newOdg = Microsoft.VisualBasic.Interaction.InputBox("Nuovo ordine del giorno", "inserisci ordine del giorno");
+        viewOrdini.Items.Add(newOdg);
+    }
 }
 
 sealed record AnagraficheData(
