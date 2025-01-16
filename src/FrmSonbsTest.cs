@@ -11,6 +11,9 @@ using System.Text.Json;
 
 namespace SonbsTest;
 
+#pragma warning disable CA1848
+#pragma warning disable CA2254
+
 public sealed partial class FrmSonbsTest : Form
 {
     private AnagraficheData? _anagrafiche;
@@ -34,7 +37,6 @@ public sealed partial class FrmSonbsTest : Form
     private void btnConfirmTalkRequest_Click(object __, EventArgs _)
     {
         if (_sonbsClient == null) { _logger.LogError("conferma richiesta parola: sonbs non inizializzato"); return; }
-
     }
 
     private async void btnConnectGaravot_Click(object __, EventArgs _)
@@ -46,7 +48,6 @@ public sealed partial class FrmSonbsTest : Form
     private void btnRefuteTalkRequest_Click(object __, EventArgs _)
     {
         if (_sonbsClient == null) { _logger.LogError("nega richiesta parola: sonbs non inizializzato"); return; }
-
     }
 
     private async void btnSignInEnd_Click(object __, EventArgs _)
