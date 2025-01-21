@@ -16,6 +16,8 @@ namespace SonbsTest;
 
 public sealed partial class FrmSonbsTest : Form
 {
+    const string GaravotAccount = "ac114";
+
     private AnagraficheData? _anagrafiche;
     private readonly IConfigurationRoot _config;
     private IChannel? _eventChannel;
@@ -138,7 +140,7 @@ public sealed partial class FrmSonbsTest : Form
         _sonbsDevs = await _sonbsClient!.ScanDevicesAsync(default);
         viewSonbs.Items.Clear();
         foreach (var dev in _sonbsDevs.T31)
-            viewSonbs.Items.Add(new ListViewItem([dev.Id.Id.ToString(), dev.Id.Target.ToString(), dev.IsChairman.ToString(), dev.MicState.ToString()]));
+            viewSonbs.Items.Add(new ListViewItem([dev.Id.Id.ToString(), dev.Id.Target.ToString(), dev.IsChairman.ToString(), "-"]));
     }
 
     private async void btnSendTalkOff_Click(object __, EventArgs _)
@@ -394,7 +396,8 @@ public sealed partial class FrmSonbsTest : Form
         bool wasSet = false;
         for (int itemId = 0; itemId < viewSonbs.Items.Count; ++itemId)
         {
-            if (viewSonbs.Items[itemId].TabSonbsGetId() == eventData.MicId.Id && viewSonbs.Items[itemId].TabSonbsGetConnection() == eventData.MicId.Target)
+            if (viewSonbs.Items[itemId].TabSonbsGetId() == eventData.MicId.Id
+                && viewSonbs.Items[itemId].TabSonbsGetConnection() == eventData.MicId.Target)
             {
                 wasSet = true;
                 viewSonbs.Items[itemId].TabSonbsSetIsOpen(eventData.IsOpen);
@@ -410,6 +413,7 @@ public sealed partial class FrmSonbsTest : Form
 
         // invia evento a rabbit
         if (_eventChannel == null) return;
+        if (_anagrafiche == null) return;
 
         var foundDelegate = _anagrafiche.DelegatesMic.FirstOrDefault(_ => _.SonbsId == eventData.MicId);
         var seat = _anagrafiche.Seats.FirstOrDefault(_ => _.CurrentSpeakerId == foundDelegate.GaravotId);
@@ -432,8 +436,6 @@ public sealed partial class FrmSonbsTest : Form
     {
         btnSendTopic.Enabled = viewOrdini.SelectedItems.Count == 1;
     }
-
-    const string GaravotAccount = "ac114";
 
     private void viewOrdini_DoubleClick(object _, EventArgs __)
     {
@@ -463,7 +465,7 @@ record struct SonbsToGaravot(long GaravotId, RecvMessageId SonbsId);
 file static class FrmSonbsTestExtensions
 {
     public static int TabDelegatesGetSeat(this ListViewItem i) => int.Parse(i.SubItems[3].Text);
-    public static UnitIdType TabSonbsGetConnection(this ListViewItem i) => i.SubItems[1].Text == "W" ? UnitIdType.Wireless : UnitIdType.Wired;
+    public static UnitIdType TabSonbsGetConnection(this ListViewItem i) => i.SubItems[1].Text == nameof(UnitIdType.Wireless) ? UnitIdType.Wireless : UnitIdType.Wired;
     public static short TabSonbsGetId(this ListViewItem i) => short.Parse(i.SubItems[0].Text);
     public static void TabSonbsSetIsOpen(this ListViewItem i, bool isOpen) => i.SubItems[3].Text = isOpen.ToString();
 }
