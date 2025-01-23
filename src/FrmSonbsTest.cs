@@ -258,7 +258,7 @@ public sealed partial class FrmSonbsTest : Form
             var delegatesMic = new[]
             {
                 new SonbsToGaravot(17, new RecvMessageId(1, UnitIdType.Wireless)), // pieropan
-                new SonbsToGaravot(23, new RecvMessageId(2, UnitIdType.Wireless)), // turrini
+                new SonbsToGaravot(23, new RecvMessageId(3, UnitIdType.Wireless)), // turrini
                 new SonbsToGaravot(137, new RecvMessageId(1, UnitIdType.Wired)), // de santis, presidente
                 new SonbsToGaravot(29, new RecvMessageId(2, UnitIdType.Wired)), // castellini
                 new SonbsToGaravot(35, new RecvMessageId(3, UnitIdType.Wired)), // costantino
@@ -415,7 +415,13 @@ public sealed partial class FrmSonbsTest : Form
         if (_eventChannel == null) return;
         if (_anagrafiche == null) return;
 
-        var foundDelegate = _anagrafiche.DelegatesMic.FirstOrDefault(_ => _.SonbsId == eventData.MicId);
+        var foundDelegateQuery = _anagrafiche.DelegatesMic.Where(_ => _.SonbsId == eventData.MicId);
+        if (foundDelegateQuery.Any() == false)
+        {
+            _logger.LogError($"evento sonbs: delegate non trovato [mic: {eventData.MicId.Id}/{eventData.MicId.Target}]");
+            return;
+        }
+        var foundDelegate = foundDelegateQuery.First();
         var seat = _anagrafiche.Seats.FirstOrDefault(_ => _.CurrentSpeakerId == foundDelegate.GaravotId);
         var ev = new TalkStartedEto
         {
@@ -423,6 +429,7 @@ public sealed partial class FrmSonbsTest : Form
             SeatNumber = foundDelegate.GaravotId.ToString(),
             MicrophoneStatus = eventData.IsOpen ? TalkMicrophoneStatus.Open : TalkMicrophoneStatus.Close,
         };
+        ev.TimeStamp = ev.CreationDate;
         await SendEventAsync(ev);
     }
 
