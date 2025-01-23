@@ -428,6 +428,8 @@ public sealed partial class FrmSonbsTest : Form
             Account = GaravotAccount,
             SeatNumber = foundDelegate.GaravotId.ToString(),
             MicrophoneStatus = eventData.IsOpen ? TalkMicrophoneStatus.Open : TalkMicrophoneStatus.Close,
+            TimedMetadataSourceId = "TEST_SOURCE",
+            TimedMetadataSourceType = TimedMetadataSourceType.Primary
         };
         ev.TimeStamp = ev.CreationDate;
         await SendEventAsync(ev);
